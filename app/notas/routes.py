@@ -72,3 +72,16 @@ def resultado(turma_id, disciplina_id):
         })
 
     return render_template('notas/resultado.html', resultados=resultados, turma=turma, disciplina=disciplina)
+
+@notas_bp.route('/resultado/selecionar', methods=['GET', 'POST'])
+@login_required
+def selecionar_resultado():
+    turmas = Turma.query.all()
+    disciplinas = Disciplina.query.all()
+
+    if request.method == 'POST':
+        turma_id = request.form['turma_id']
+        disciplina_id = request.form['disciplina_id']
+        return redirect(url_for('notas.resultado', turma_id=turma_id, disciplina_id=disciplina_id))
+
+    return render_template('notas/selecionar_resultado.html', turmas=turmas, disciplinas=disciplinas)
