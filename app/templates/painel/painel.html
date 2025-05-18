@@ -2,6 +2,36 @@
 {% extends 'base.html' %}
 {% block title %}Painel de Importação{% endblock %}
 {% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx1 = document.getElementById('graficoAlunosTurma');
+new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: {{ labels_turma|safe }},
+        datasets: [{
+            label: 'Alunos por Turma',
+            data: {{ valores_turma|safe }},
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+        }]
+    }
+});
+
+const ctx2 = document.getElementById('graficoDisciplinasProfessor');
+new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: {{ labels_prof|safe }},
+        datasets: [{
+            label: 'Disciplinas por Professor',
+            data: {{ valores_prof|safe }},
+            backgroundColor: 'rgba(255, 99, 132, 0.7)'
+        }]
+    }
+});
+</script>
 <div class="row">
     <!-- Cartões de Estatísticas -->
     <div class="col-md-3">

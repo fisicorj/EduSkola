@@ -213,4 +213,5 @@ def painel():
         disciplinas_por_professor=disciplinas_por_professor,
         historico_importacoes=historico_importacoes,
         ultima_importacao=ultima_importacao
+        tipos=tipos
     )
