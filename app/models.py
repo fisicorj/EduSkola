@@ -1,5 +1,6 @@
 from app import db
 from flask_login import UserMixin
+from datetime import datetime
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -77,3 +78,9 @@ class Nota(db.Model):
     aluno = db.relationship('Aluno', backref='notas', lazy=True)
     avaliacao = db.relationship('Avaliacao', backref='notas', lazy=True)
 
+class Importacao(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tipo = db.Column(db.String(50), nullable=False)
+    data = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), nullable=False)  # sucesso, erro
+    detalhes = db.Column(db.Text)  # opcional, logs ou mensagens
