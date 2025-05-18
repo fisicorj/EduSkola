@@ -15,9 +15,9 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item"><a class="nav-link" href="{{ url_for('instituicoes.listar') }}">Instituições</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Cursos</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Professores</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Disciplinas</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('Cursos.listar') }}">Cursos</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('professores.listar') }}">Professores</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('disiciplinas.listar') }}">Disciplinas</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('turmas.listar') }}">Turmas</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Alunos</a></li>
       </ul>
