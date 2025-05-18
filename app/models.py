@@ -84,3 +84,4 @@ class Importacao(db.Model):
     data = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), nullable=False)  # sucesso, erro
     detalhes = db.Column(db.Text)  # opcional, logs ou mensagens
+    usuario_id = db.Column(db.Integer, db.ForeignKey('user.id'))
