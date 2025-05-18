@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from flask import Blueprint, request, redirect, url_for, flash, render_template
+from flask import Blueprint, request, redirect, url_for, flash, render_template, send_from_directory
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -170,6 +170,12 @@ def importar_disciplinas():
         campos_unico=['sigla', 'turma_id']
     )
     return redirect(url_for('painel.painel'))
+
+@painel_bp.route('/template/<nome>')
+@login_required
+def baixar_template(nome):
+    caminho = os.path.join('static', 'templates_importacao')
+    return send_from_directory(caminho, nome, as_attachment=True)
 
 @painel_bp.route('/')
 @login_required
