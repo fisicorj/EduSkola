@@ -174,6 +174,10 @@ def importar_disciplinas():
 @painel_bp.route('/')
 @login_required
 def painel():
+    
+    # Dropdown de tipos de dados
+    tipos = ['instituicoes', 'cursos', 'turmas', 'alunos', 'professores', 'disciplinas']
+
     # Estatísticas básicas
     total_instituicoes = Instituicao.query.count()
     total_turmas = Turma.query.count()
