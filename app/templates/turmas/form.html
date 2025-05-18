@@ -27,13 +27,16 @@
     </div>
 
     <div class="mb-3">
-        <label for="curso_id" class="form-label">Curso</label>
-        <select name="curso_id" class="form-select" required>
-            {% for curso in cursos %}
-                <option value="{{ curso.id }}" {% if turma and turma.curso_id == curso.id %}selected{% endif %}>{{ curso.nome }}</option>
-            {% endfor %}
-        </select>
-    </div>
+    <label for="curso_id" class="form-label">Curso</label>
+    <select name="curso_id" class="form-select" required>
+        {% for curso in cursos %}
+            <option value="{{ curso.id }}"
+                {% if turma and turma.curso_id == curso.id %}selected{% endif %}>
+                {{ curso.nome }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
 
     <div class="mb-3">
         <label for="codigo" class="form-label">Código</label>

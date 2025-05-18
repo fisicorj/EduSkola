@@ -29,6 +29,8 @@ def nova():
     instituicoes = Instituicao.query.all()
     cursos = Curso.query.all()
     return render_template('turmas/form.html', titulo='Nova Turma', instituicoes=instituicoes)
+    cursos = Curso.query.all()
+    return render_template('turmas/form.html', titulo='Nova Turma', cursos=cursos)
 
 @turmas_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
