@@ -4,6 +4,14 @@ import random
 
 app = create_app()
 with app.app_context():
+    # Apagar dados anteriores respeitando a ordem de dependência
+    db.session.query(Aluno).delete()
+    db.session.query(Turma).delete()
+    db.session.query(Curso).delete()
+    db.session.query(Professor).delete()
+    db.session.query(Instituicao).delete()
+    db.session.commit()
+
     # 1. Criar instituições
     i1 = Instituicao(nome="Instituto Federal A", sigla="IFA", cidade="São Paulo", tipo="Pública", media_aprovacao=6.0)
     i2 = Instituicao(nome="Universidade B", sigla="UNIB", cidade="Rio de Janeiro", tipo="Privada", media_aprovacao=7.0)
@@ -52,4 +60,4 @@ with app.app_context():
         db.session.add(aluno)
 
     db.session.commit()
-    print("Base de dados populada com sucesso!")
+    print("Base de dados esvaziada e repovoada com sucesso!")
