@@ -67,3 +67,13 @@ class Avaliacao(db.Model):
 
     turma = db.relationship('Turma', backref='avaliacoes')
     disciplina = db.relationship('Disciplina', backref='avaliacoes')
+
+class Nota(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    aluno_id = db.Column(db.Integer, db.ForeignKey('aluno.id'), nullable=False)
+    avaliacao_id = db.Column(db.Integer, db.ForeignKey('avaliacao.id'), nullable=False)
+    valor = db.Column(db.Float, nullable=False)
+
+    aluno = db.relationship('Aluno', backref='notas', lazy=True)
+    avaliacao = db.relationship('Avaliacao', backref='notas', lazy=True)
+

@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -10,6 +11,9 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'secretkey'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
+
+   # dentro da função create_app()
+    migrate = Migrate(app, db)
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -32,7 +36,8 @@ def create_app():
     from app.professores.routes import professores_bp
     from app.alunos.routes import alunos_bp
     from app.avaliacoes.routes import avaliacoes_bp
-
+    from app.notas.routes import notas_bp
+    
     app.register_blueprint(auth_bp)
     app.register_blueprint(painel_bp)
     app.register_blueprint(inst_bp)
@@ -42,5 +47,6 @@ def create_app():
     app.register_blueprint(professores_bp)
     app.register_blueprint(alunos_bp)
     app.register_blueprint(avaliacoes_bp)
-    
+    app.register_blueprint(notas_bp)
+
     return app

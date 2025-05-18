@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Selecionar Turma e Disciplina{% endblock %}
+{% block content %}
+<h2>Selecionar Turma e Disciplina</h2>
+<form method="post">
+    <div class="mb-3">
+        <label for="turma_id" class="form-label">Turma</label>
+        <select name="turma_id" class="form-select" required>
+            {% for turma in turmas %}
+                <option value="{{ turma.id }}">{{ turma.nome }} - {{ turma.codigo }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="disciplina_id" class="form-label">Disciplina</label>
+        <select name="disciplina_id" class="form-select" required>
+            {% for d in disciplinas %}
+                <option value="{{ d.id }}">{{ d.nome }} ({{ d.sigla }})</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" formaction="{{ url_for('notas.lancar') }}" class="btn btn-primary"
+            onclick="this.form.action=this.form.action + '/' + document.querySelector('[name=turma_id]').value + '/' + document.querySelector('[name=disciplina_id]').value;">
+        Continuar
+    </button>
+</form>
+{% endblock %}
