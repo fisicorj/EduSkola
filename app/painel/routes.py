@@ -212,6 +212,6 @@ def painel():
         alunos_por_turma=alunos_por_turma,
         disciplinas_por_professor=disciplinas_por_professor,
         historico_importacoes=historico_importacoes,
-        ultima_importacao=ultima_importacao
+        ultima_importacao=ultima_importacao,
         tipos=tipos
     )
