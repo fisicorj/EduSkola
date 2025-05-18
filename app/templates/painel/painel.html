@@ -92,6 +92,22 @@ new Chart(ctx2, {
     </div>
 </div>
 
+<!-- Modelos de Importação -->
+<div class="card mb-4">
+    <div class="card-header">Modelos de Importação (.xlsx)</div>
+    <div class="card-body">
+        <div class="row">
+            {% for tipo in tipos %}
+            <div class="col-md-4 mb-2">
+                <a href="{{ url_for('painel.baixar_template', nome=tipo ~ '.xlsx') }}" class="btn btn-outline-primary w-100">
+                    Baixar modelo de {{ tipo.title() }}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 <!-- Histórico de Importações -->
 <h4>Histórico de Importações</h4>
 <table class="table table-striped">
