@@ -56,3 +56,14 @@ class Aluno(db.Model):
     email = db.Column(db.String(100), unique=True)
     matricula = db.Column(db.String(20), nullable=False, unique=True)
     turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'), nullable=False)
+
+class Avaliacao(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(50), nullable=False)
+    peso = db.Column(db.Float, nullable=False, default=0.0)
+    
+    turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'), nullable=False)
+    disciplina_id = db.Column(db.Integer, db.ForeignKey('disciplina.id'), nullable=False)
+
+    turma = db.relationship('Turma', backref='avaliacoes')
+    disciplina = db.relationship('Disciplina', backref='avaliacoes')

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Avaliações{% endblock %}
+{% block content %}
+<h2>Avaliações Cadastradas</h2>
+<a href="{{ url_for('avaliacoes.nova') }}" class="btn btn-primary mb-3">Nova Avaliação</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Turma</th>
+            <th>Disciplina</th>
+            <th>Avaliação</th>
+            <th>Peso</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in avaliacoes %}
+        <tr>
+            <td>{{ a.turma.nome }}</td>
+            <td>{{ a.disciplina.nome }}</td>
+            <td>{{ a.nome }}</td>
+            <td>{{ "%.2f"|format(a.peso) }}</td>
+            <td>
+                <a href="{{ url_for('avaliacoes.excluir', id=a.id) }}" class="btn btn-sm btn-danger">Excluir</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
