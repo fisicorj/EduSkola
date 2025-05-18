@@ -122,3 +122,11 @@ def importar_disciplinas():
     except Exception as e:
         flash(f'Erro: {e}', 'danger')
     return redirect(url_for('painel.painel'))
+
+
+@painel_bp.route('/')
+@login_required
+def painel():
+    total = Instituicao.query.count()
+    total_turmas = Turma.query.count()
+    return render_template('painel/painel.html', total=total, total_turmas=total_turmas)
