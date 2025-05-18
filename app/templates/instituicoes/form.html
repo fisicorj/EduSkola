@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<h2>{{ titulo }}</h2>
+<form method="post">
+    <div class="mb-3">
+        <label for="nome" class="form-label">Nome</label>
+        <input type="text" name="nome" value="{{ instituicao.nome if instituicao else '' }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="sigla" class="form-label">Sigla</label>
+        <input type="text" name="sigla" value="{{ instituicao.sigla if instituicao else '' }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="cidade" class="form-label">Cidade</label>
+        <input type="text" name="cidade" value="{{ instituicao.cidade if instituicao else '' }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="tipo" class="form-label">Tipo</label>
+        <select name="tipo" class="form-select" required>
+            <option value="">Selecione...</option>
+            <option value="Pública" {% if instituicao and instituicao.tipo == 'Pública' %}selected{% endif %}>Pública</option>
+            <option value="Privada" {% if instituicao and instituicao.tipo == 'Privada' %}selected{% endif %}>Privada</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Salvar</button>
+    <a href="{{ url_for('instituicoes.listar') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
