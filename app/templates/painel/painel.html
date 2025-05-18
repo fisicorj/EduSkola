@@ -1,8 +1,131 @@
+<!-- painel/painel.html -->
 {% extends 'base.html' %}
-{% block title %}Painel{% endblock %}
+{% block title %}Painel de Importação{% endblock %}
 {% block content %}
-<h2>Painel Administrativo</h2>
-<p>Total de Turmas: <strong>{{ total_turmas }}</strong></p>
-<p>Total de Instituições: <strong>{{ total }}</strong></p>
-<a href="{{ url_for('instituicoes.listar') }}" class="btn btn-primary">Gerenciar Instituições</a>
+<div class="row">
+    <!-- Cartões de Estatísticas -->
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Instituições</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ total_instituicoes }}</h5>
+                <p class="card-text">Total importado</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Turmas</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ total_turmas }}</h5>
+                <p class="card-text">Criadas no sistema</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-header">Última Importação</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ ultima_importacao.data if ultima_importacao else '---' }}</h5>
+                <p class="card-text">Tipo: {{ ultima_importacao.tipo if ultima_importacao else '---' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de Importações -->
+<div class="mb-4">
+    <canvas id="graficoImportacoes"></canvas>
+</div>
+
+<!-- Módulo de Upload Rápido -->
+<div class="card mb-4">
+    <div class="card-header">Upload Rápido</div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" action="{{ url_for('painel.importar') }}">
+            <div class="row">
+                <div class="col-md-4">
+                    <select class="form-select" name="tipo" required>
+                        {% for tipo in tipos %}
+                        <option value="{{ tipo }}">{{ tipo.title() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <input class="form-control" type="file" name="arquivo" required>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-success w-100">Importar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Histórico de Importações -->
+<h4>Histórico de Importações</h4>
+<table class="table table-striped">
+    <thead>
+        <tr><th>Data</th><th>Tipo</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+        {% for i in historico_importacoes %}
+        <tr>
+            <td>{{ i.data }}</td>
+            <td>{{ i.tipo }}</td>
+            <td><span class="badge bg-{{ 'success' if i.status == 'sucesso' else 'danger' }}">{{ i.status }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Tabela Interativa de Instituições -->
+<h4>Instituições</h4>
+<input type="text" class="form-control mb-2" placeholder="Filtrar por cidade ou tipo..." id="filtro">
+<table class="table table-bordered" id="tabela-instituicoes">
+    <thead><tr><th>Nome</th><th>Sigla</th><th>Cidade</th><th>Tipo</th><th>Ações</th></tr></thead>
+    <tbody>
+        {% for i in instituicoes %}
+        <tr>
+            <td>{{ i.nome }}</td>
+            <td>{{ i.sigla }}</td>
+            <td>{{ i.cidade }}</td>
+            <td>{{ i.tipo }}</td>
+            <td>
+                <a href="{{ url_for('instituicoes.editar', id=i.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                <a href="{{ url_for('instituicoes.excluir', id=i.id) }}" class="btn btn-sm btn-danger">Excluir</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Gráficos adicionais -->
+<div class="row">
+    <div class="col-md-6">
+        <h5>Alunos por Turma</h5>
+        <canvas id="graficoAlunosTurma"></canvas>
+    </div>
+    <div class="col-md-6">
+        <h5>Disciplinas por Professor</h5>
+        <canvas id="graficoDisciplinasProfessor"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Exemplo de gráficos: dados devem ser passados via context ou AJAX futuramente
+const ctx1 = document.getElementById('graficoImportacoes');
+new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: {{ dias|safe }},
+        datasets: [{
+            label: 'Importações',
+            data: {{ contagens|safe }},
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+        }]
+    }
+});
+</script>
 {% endblock %}
