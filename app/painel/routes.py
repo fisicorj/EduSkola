@@ -242,7 +242,7 @@ def painel():
         ).join(Disciplina).group_by(Professor.id).order_by(desc('quantidade')).limit(10).all()
 
         # Import history
-        historico_importacoes = Importacao.query.order_by(desc(Importacao.data)).limit(10).all()
+        historico_importacoes = Importacao.query.order_by(desc(Importacao.data)).limit(5).all()
         ultima_importacao = Importacao.query.order_by(desc(Importacao.data)).first()
 
         return render_template(
