@@ -16,6 +16,12 @@
         <input type="text" name="cidade" value="{{ instituicao.cidade if instituicao else '' }}" class="form-control" required>
     </div>
     <div class="mb-3">
+    <label for="media_aprovacao" class="form-label">Média de Aprovação</label>
+    <input type="number" step="0.1" name="media_aprovacao"
+           value="{{ instituicao.media_aprovacao if instituicao else '5.0' }}"
+           class="form-control" required>
+    </div>
+    <div class="mb-3">
         <label for="tipo" class="form-label">Tipo</label>
         <select name="tipo" class="form-select" required>
             <option value="">Selecione...</option>

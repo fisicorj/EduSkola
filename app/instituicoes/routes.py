@@ -19,7 +19,8 @@ def nova():
             nome=request.form['nome'],
             sigla=request.form['sigla'],
             cidade=request.form['cidade'],
-            tipo=request.form['tipo']
+            tipo=request.form['tipo'],
+            media_aprovacao=request.form['media_aprovacao']
         )
         db.session.add(i)
         db.session.commit()
@@ -36,10 +37,11 @@ def editar(id):
         i.sigla = request.form['sigla']
         i.cidade = request.form['cidade']
         i.tipo = request.form['tipo']
+        i.media_aprovacao = request.form['media_aprovacao']
         db.session.commit()
         flash('Instituição atualizada.', 'info')
         return redirect(url_for('instituicoes.listar'))
-    return render_template('instituicoes/form.html', instituicao=i, titulo='Editar Instituição')
+    return render_template('instituicoes/form.html', titulo='Editar Instituição', instituicao=i)
 
 @inst_bp.route('/excluir/<int:id>')
 @login_required

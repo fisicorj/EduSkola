@@ -12,6 +12,7 @@ class Instituicao(db.Model):
     sigla = db.Column(db.String(10), nullable=False)
     cidade = db.Column(db.String(50), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)  # Pública ou Privada
+    media_aprovacao = db.Column(db.Float, nullable=False, default=5.0)
 
     cursos = db.relationship('Curso', backref='instituicao', lazy=True)
     turmas = db.relationship('Turma', backref='instituicao', lazy=True)
