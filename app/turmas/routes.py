@@ -28,9 +28,7 @@ def nova():
         return redirect(url_for('turmas.listar'))
     instituicoes = Instituicao.query.all()
     cursos = Curso.query.all()
-    return render_template('turmas/form.html', titulo='Nova Turma', instituicoes=instituicoes)
-    cursos = Curso.query.all()
-    return render_template('turmas/form.html', titulo='Nova Turma', cursos=cursos)
+    return render_template('turmas/form.html', titulo='Nova Turma', instituicoes=instituicoes, cursos=cursos)
 
 @turmas_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -47,7 +45,7 @@ def editar(id):
         return redirect(url_for('turmas.listar'))
     instituicoes = Instituicao.query.all()
     cursos = Curso.query.all()
-    return render_template('turmas/form.html', turma=t, titulo='Editar Turma', instituicoes=instituicoes)
+    return render_template('turmas/form.html', turma=t, titulo='Editar Turma', instituicoes=instituicoes, cursos=cursos)
 
 @turmas_bp.route('/excluir/<int:id>')
 @login_required

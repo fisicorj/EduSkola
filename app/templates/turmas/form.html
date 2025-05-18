@@ -4,8 +4,28 @@
 <h2>{{ titulo }}</h2>
 <form method="post">
     <div class="mb-3">
-        <label for="nome" class="form-label">Nome da Turma</label>
+        <label for="nome" class="form-label">Nome</label>
         <input type="text" name="nome" value="{{ turma.nome if turma else '' }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="codigo" class="form-label">Código</label>
+        <input type="text" name="codigo" value="{{ turma.codigo if turma else '' }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="turno" class="form-label">Turno</label>
+        <select name="turno" class="form-select" required>
+            {% for turno in ['Manhã', 'Tarde', 'Noite'] %}
+                <option value="{{ turno }}" {% if turma and turma.turno == turno %}selected{% endif %}>{{ turno }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="curso_id" class="form-label">Curso</label>
+        <select name="curso_id" class="form-select" required>
+            {% for curso in cursos %}
+                <option value="{{ curso.id }}" {% if turma and turma.curso_id == curso.id %}selected{% endif %}>{{ curso.nome }}</option>
+            {% endfor %}
+        </select>
     </div>
     <div class="mb-3">
         <label for="instituicao_id" class="form-label">Instituição</label>
@@ -14,33 +34,6 @@
                 <option value="{{ inst.id }}" {% if turma and turma.instituicao_id == inst.id %}selected{% endif %}>{{ inst.nome }}</option>
             {% endfor %}
         </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="turno" class="form-label">Turno</label>
-        <select name="turno" class="form-select" required>
-            <option value="">Selecione o turno</option>
-            <option value="Manhã" {% if turma and turma.turno == 'Manhã' %}selected{% endif %}>Manhã</option>
-            <option value="Tarde" {% if turma and turma.turno == 'Tarde' %}selected{% endif %}>Tarde</option>
-            <option value="Noite" {% if turma and turma.turno == 'Noite' %}selected{% endif %}>Noite</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-    <label for="curso_id" class="form-label">Curso</label>
-    <select name="curso_id" class="form-select" required>
-        {% for curso in cursos %}
-            <option value="{{ curso.id }}"
-                {% if turma and turma.curso_id == curso.id %}selected{% endif %}>
-                {{ curso.nome }}
-            </option>
-        {% endfor %}
-    </select>
-</div>
-
-    <div class="mb-3">
-        <label for="codigo" class="form-label">Código</label>
-        <input type="text" name="codigo" value="{{ turma.codigo if turma else '' }}" class="form-control" required>
     </div>
     <button type="submit" class="btn btn-success">Salvar</button>
     <a href="{{ url_for('turmas.listar') }}" class="btn btn-secondary">Cancelar</a>
