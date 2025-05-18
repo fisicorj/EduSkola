@@ -11,7 +11,6 @@ painel_bp = Blueprint('painel', __name__, url_prefix='/painel')
 @painel_bp.route('/importar', methods=['GET', 'POST'])
 @login_required
 def importar():
-    from flask import render_template
     tipos = ['instituicoes', 'cursos', 'turmas', 'alunos', 'professores', 'disciplinas']
     if request.method == 'POST':
         tipo = request.form['tipo']
@@ -30,21 +29,45 @@ def importar():
 
     return render_template('painel/importar.html', tipos=tipos)
 
-# Handlers individuais
-
 @painel_bp.route('/importar/instituicoes')
 @login_required
 def importar_instituicoes():
     caminho = request.args.get('caminho')
     try:
         df = pd.read_excel(caminho) if caminho.endswith('.xlsx') else pd.read_csv(caminho)
+        inseridos, ignorados = 0, 0
         for _, row in df.iterrows():
-            item = Instituicao(nome=row['nome'], sigla=row['sigla'], cidade=row['cidade'], tipo=row['tipo'], media=row.get('media', 7.0))
-            db.session.add(item)
+            nome = str(row['nome']).strip()
+            sigla = str(row['sigla']).strip()
+            cidade = str(row['cidade']).strip()
+            tipo = str(row['tipo']).strip()
+            media = float(row.get('media', 7.0))
+            
+            if not nome or not sigla:
+                continue
+                
+            existe = Instituicao.query.filter_by(sigla=sigla).first()
+            if existe:
+                ignorados += 1
+                continue
+                
+            db.session.add(Instituicao(
+                nome=nome,
+                sigla=sigla,
+                cidade=cidade,
+                tipo=tipo,
+                media=media
+            ))
+            inseridos += 1
+            
         db.session.commit()
-        flash('Instituições importadas com sucesso.', 'success')
+        flash(f'Instituições importadas: {inseridos} | Ignoradas: {ignorados}', 'success')
     except Exception as e:
-        flash(f'Erro: {e}', 'danger')
+        db.session.rollback()
+        flash(f'Erro: {str(e)}', 'danger')
+    finally:
+        if os.path.exists(caminho):
+            os.remove(caminho)
     return redirect(url_for('painel.painel'))
 
 @painel_bp.route('/importar/cursos')
@@ -53,13 +76,35 @@ def importar_cursos():
     caminho = request.args.get('caminho')
     try:
         df = pd.read_excel(caminho) if caminho.endswith('.xlsx') else pd.read_csv(caminho)
+        inseridos, ignorados = 0, 0
         for _, row in df.iterrows():
-            item = Curso(nome=row['nome'], sigla=row['sigla'], instituicao_id=row['instituicao_id'])
-            db.session.add(item)
+            nome = str(row['nome']).strip()
+            sigla = str(row['sigla']).strip()
+            instituicao_id = int(row['instituicao_id'])
+            
+            if not nome or not sigla:
+                continue
+                
+            existe = Curso.query.filter_by(sigla=sigla, instituicao_id=instituicao_id).first()
+            if existe:
+                ignorados += 1
+                continue
+                
+            db.session.add(Curso(
+                nome=nome,
+                sigla=sigla,
+                instituicao_id=instituicao_id
+            ))
+            inseridos += 1
+            
         db.session.commit()
-        flash('Cursos importados com sucesso.', 'success')
+        flash(f'Cursos importados: {inseridos} | Ignorados: {ignorados}', 'success')
     except Exception as e:
-        flash(f'Erro: {e}', 'danger')
+        db.session.rollback()
+        flash(f'Erro: {str(e)}', 'danger')
+    finally:
+        if os.path.exists(caminho):
+            os.remove(caminho)
     return redirect(url_for('painel.painel'))
 
 @painel_bp.route('/importar/turmas')
@@ -68,14 +113,39 @@ def importar_turmas():
     caminho = request.args.get('caminho')
     try:
         df = pd.read_excel(caminho) if caminho.endswith('.xlsx') else pd.read_csv(caminho)
+        inseridos, ignorados = 0, 0
         for _, row in df.iterrows():
-            item = Turma(nome=row['nome'], codigo=row['codigo'], turno=row['turno'],
-                         curso_id=row['curso_id'], instituicao_id=row['instituicao_id'])
-            db.session.add(item)
+            nome = str(row['nome']).strip()
+            codigo = str(row['codigo']).strip()
+            turno = str(row['turno']).strip()
+            curso_id = int(row['curso_id'])
+            instituicao_id = int(row['instituicao_id'])
+            
+            if not codigo:
+                continue
+                
+            existe = Turma.query.filter_by(codigo=codigo).first()
+            if existe:
+                ignorados += 1
+                continue
+                
+            db.session.add(Turma(
+                nome=nome,
+                codigo=codigo,
+                turno=turno,
+                curso_id=curso_id,
+                instituicao_id=instituicao_id
+            ))
+            inseridos += 1
+            
         db.session.commit()
-        flash('Turmas importadas com sucesso.', 'success')
+        flash(f'Turmas importadas: {inseridos} | Ignoradas: {ignorados}', 'success')
     except Exception as e:
-        flash(f'Erro: {e}', 'danger')
+        db.session.rollback()
+        flash(f'Erro: {str(e)}', 'danger')
+    finally:
+        if os.path.exists(caminho):
+            os.remove(caminho)
     return redirect(url_for('painel.painel'))
 
 @painel_bp.route('/importar/alunos')
@@ -84,13 +154,37 @@ def importar_alunos():
     caminho = request.args.get('caminho')
     try:
         df = pd.read_excel(caminho) if caminho.endswith('.xlsx') else pd.read_csv(caminho)
+        inseridos, ignorados = 0, 0
         for _, row in df.iterrows():
-            item = Aluno(nome=row['nome'], email=row['email'], matricula=row['matricula'], turma_id=row['turma_id'])
-            db.session.add(item)
+            nome = str(row['nome']).strip()
+            email = str(row['email']).strip().lower()
+            matricula = str(row['matricula']).strip()
+            turma_id = int(row['turma_id'])
+            
+            if not email or not matricula or not nome:
+                continue
+                
+            existe = Aluno.query.filter((Aluno.email == email) | (Aluno.matricula == matricula)).first()
+            if existe:
+                ignorados += 1
+                continue
+                
+            db.session.add(Aluno(
+                nome=nome,
+                email=email,
+                matricula=matricula,
+                turma_id=turma_id
+            ))
+            inseridos += 1
+            
         db.session.commit()
-        flash('Alunos importados com sucesso.', 'success')
+        flash(f'Alunos importados: {inseridos} | Ignorados: {ignorados}', 'success')
     except Exception as e:
-        flash(f'Erro: {e}', 'danger')
+        db.session.rollback()
+        flash(f'Erro: {str(e)}', 'danger')
+    finally:
+        if os.path.exists(caminho):
+            os.remove(caminho)
     return redirect(url_for('painel.painel'))
 
 @painel_bp.route('/importar/professores')
@@ -99,13 +193,33 @@ def importar_professores():
     caminho = request.args.get('caminho')
     try:
         df = pd.read_excel(caminho) if caminho.endswith('.xlsx') else pd.read_csv(caminho)
+        inseridos, ignorados = 0, 0
         for _, row in df.iterrows():
-            item = Professor(nome=row['nome'], email=row['email'])
-            db.session.add(item)
+            nome = str(row['nome']).strip()
+            email = str(row['email']).strip().lower()
+            
+            if not email or not nome:
+                continue
+                
+            existe = Professor.query.filter_by(email=email).first()
+            if existe:
+                ignorados += 1
+                continue
+                
+            db.session.add(Professor(
+                nome=nome,
+                email=email
+            ))
+            inseridos += 1
+            
         db.session.commit()
-        flash('Professores importados com sucesso.', 'success')
+        flash(f'Professores importados: {inseridos} | Ignorados: {ignorados}', 'success')
     except Exception as e:
-        flash(f'Erro: {e}', 'danger')
+        db.session.rollback()
+        flash(f'Erro: {str(e)}', 'danger')
+    finally:
+        if os.path.exists(caminho):
+            os.remove(caminho)
     return redirect(url_for('painel.painel'))
 
 @painel_bp.route('/importar/disciplinas')
@@ -114,19 +228,50 @@ def importar_disciplinas():
     caminho = request.args.get('caminho')
     try:
         df = pd.read_excel(caminho) if caminho.endswith('.xlsx') else pd.read_csv(caminho)
+        inseridos, ignorados = 0, 0
         for _, row in df.iterrows():
-            item = Disciplina(nome=row['nome'], sigla=row['sigla'], turma_id=row['turma_id'], professor_id=row['professor_id'])
-            db.session.add(item)
+            nome = str(row['nome']).strip()
+            sigla = str(row['sigla']).strip()
+            turma_id = int(row['turma_id'])
+            professor_id = int(row['professor_id'])
+            
+            if not sigla or not turma_id:
+                continue
+                
+            existe = Disciplina.query.filter_by(sigla=sigla, turma_id=turma_id).first()
+            if existe:
+                ignorados += 1
+                continue
+                
+            db.session.add(Disciplina(
+                nome=nome,
+                sigla=sigla,
+                turma_id=turma_id,
+                professor_id=professor_id
+            ))
+            inseridos += 1
+            
         db.session.commit()
-        flash('Disciplinas importadas com sucesso.', 'success')
+        flash(f'Disciplinas importadas: {inseridos} | Ignoradas: {ignorados}', 'success')
     except Exception as e:
-        flash(f'Erro: {e}', 'danger')
+        db.session.rollback()
+        flash(f'Erro: {str(e)}', 'danger')
+    finally:
+        if os.path.exists(caminho):
+            os.remove(caminho)
     return redirect(url_for('painel.painel'))
-
 
 @painel_bp.route('/')
 @login_required
 def painel():
-    total = Instituicao.query.count()
+    total_instituicoes = Instituicao.query.count()
     total_turmas = Turma.query.count()
-    return render_template('painel/painel.html', total=total, total_turmas=total_turmas)
+    total_alunos = Aluno.query.count()
+    total_professores = Professor.query.count()
+    return render_template(
+        'painel/painel.html',
+        total_instituicoes=total_instituicoes,
+        total_turmas=total_turmas,
+        total_alunos=total_alunos,
+        total_professores=total_professores
+    )
