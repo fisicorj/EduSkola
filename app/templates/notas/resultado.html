@@ -8,6 +8,9 @@
     <thead>
         <tr>
             <th>Aluno</th>
+            {% for avaliacao in avaliacoes %}
+                <th>{{ avaliacao.nome }}</th>
+            {% endfor %}
             <th>Média</th>
             <th>Situação</th>
         </tr>
@@ -16,6 +19,15 @@
         {% for r in resultados %}
         <tr>
             <td>{{ r.aluno.nome }}</td>
+            {% for nota in r.notas %}
+                <td>
+                    {% if nota is not none %}
+                        {{ "%.2f"|format(nota) }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            {% endfor %}
             <td>
                 {% if r.media is not none %}
                     {{ "%.2f"|format(r.media) }}
@@ -37,6 +49,6 @@
     </tbody>
 </table>
 
-<a href="{{ url_for('notas.lancar') }}" class="btn btn-secondary">Voltar</a>
+<a href="{{ url_for('notas.selecionar_resultado') }}" class="btn btn-secondary">Voltar</a>
 
 {% endblock %}

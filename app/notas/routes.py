@@ -54,6 +54,11 @@ def resultado(turma_id, disciplina_id):
     turma = Turma.query.get_or_404(turma_id)
     disciplina = Disciplina.query.get_or_404(disciplina_id)
     alunos = Aluno.query.filter_by(turma_id=turma.id).all()
+    avaliacoes = Avaliacao.query.filter_by(turma_id=turma.id, disciplina_id=disciplina.id).all()
+    notas_todas = Nota.query.all()
+
+    # Dicionário de notas {(aluno_id, avaliacao_id): valor}
+    notas = {(n.aluno_id, n.avaliacao_id): n.valor for n in notas_todas}
 
     resultados = []
 
@@ -68,10 +73,16 @@ def resultado(turma_id, disciplina_id):
         resultados.append({
             'aluno': aluno,
             'media': media,
-            'situacao': situacao
+            'situacao': situacao,
+            'notas': [notas.get((aluno.id, av.id)) for av in avaliacoes]
         })
 
-    return render_template('notas/resultado.html', resultados=resultados, turma=turma, disciplina=disciplina)
+    return render_template('notas/resultado.html',
+                           turma=turma,
+                           disciplina=disciplina,
+                           resultados=resultados,
+                           avaliacoes=avaliacoes)
+
 
 @notas_bp.route('/resultado/selecionar', methods=['GET', 'POST'])
 @login_required
