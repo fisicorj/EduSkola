@@ -16,7 +16,7 @@ def registrar_importacao(tipo, status, detalhes):
         status=status,
         detalhes=detalhes,
         usuario_id=current_user.id,
-        data_hora=datetime.now()
+        data=datetime.now()
     )
     db.session.add(registro)
     db.session.commit()
