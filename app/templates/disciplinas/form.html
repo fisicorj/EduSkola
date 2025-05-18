@@ -11,6 +11,22 @@
         <label for="sigla" class="form-label">Sigla</label>
         <input type="text" name="sigla" value="{{ disciplina.sigla if disciplina else '' }}" class="form-control" required>
     </div>
+    <div class="mb-3">
+        <label for="turma_id" class="form-label">Turma</label>
+        <select name="turma_id" class="form-select" required>
+            {% for turma in turmas %}
+                <option value="{{ turma.id }}" {% if disciplina and disciplina.turma_id == turma.id %}selected{% endif %}>{{ turma.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="professor_id" class="form-label">Professor</label>
+        <select name="professor_id" class="form-select" required>
+            {% for prof in professores %}
+                <option value="{{ prof.id }}" {% if disciplina and disciplina.professor_id == prof.id %}selected{% endif %}>{{ prof.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
     <button type="submit" class="btn btn-success">Salvar</button>
     <a href="{{ url_for('disciplinas.listar') }}" class="btn btn-secondary">Cancelar</a>
 </form>
