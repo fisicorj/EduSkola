@@ -82,6 +82,7 @@ class Importacao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tipo = db.Column(db.String(50), nullable=False)
     data = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(20), nullable=False)  # sucesso, erro
-    detalhes = db.Column(db.Text)  # opcional, logs ou mensagens
-    usuario_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    status = db.Column(db.String(20), nullable=False)
+    detalhes = db.Column(db.Text)
+    usuario_id = db.Column(db.Integer,db.ForeignKey('user.id', name='fk_importacao_usuario'),nullable=True)
+    usuario = db.relationship('User', backref='importacoes')
