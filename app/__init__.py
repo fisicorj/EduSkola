@@ -26,9 +26,17 @@ def create_app():
     from app.auth.routes import auth_bp
     from app.painel.routes import painel_bp
     from app.instituicoes.routes import inst_bp
+    from app.disciplinas.routes import disciplinas_bp
+    from app.turmas.routes import turmas_bp
+    from app.cursos.routes import cursos_bp
+    from app.professores.routes import professores_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(painel_bp)
     app.register_blueprint(inst_bp)
+    app.register_blueprint(disciplinas_bp)
+    app.register_blueprint(turmas_bp)
+    app.register_blueprint(cursos_bp)
+    app.register_blueprint(professores_bp)
 
     return app

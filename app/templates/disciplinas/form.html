@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<h2>{{ titulo }}</h2>
+<form method="post">
+    <div class="mb-3">
+        <label for="nome" class="form-label">Nome</label>
+        <input type="text" name="nome" value="{{ disciplina.nome if disciplina else '' }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="sigla" class="form-label">Sigla</label>
+        <input type="text" name="sigla" value="{{ disciplina.sigla if disciplina else '' }}" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-success">Salvar</button>
+    <a href="{{ url_for('disciplinas.listar') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

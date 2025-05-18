@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
-from app.models import Instituicao
+from app.models import Instituicao, Turma
 
 painel_bp = Blueprint('painel', __name__, url_prefix='/painel')
 
@@ -8,4 +8,5 @@ painel_bp = Blueprint('painel', __name__, url_prefix='/painel')
 @login_required
 def painel():
     total = Instituicao.query.count()
-    return render_template('painel/painel.html', total=total)
+    total_turmas = Turma.query.count()
+    return render_template('painel/painel.html', total=total, total_turmas=total_turmas)

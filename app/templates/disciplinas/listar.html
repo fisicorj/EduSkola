@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Disciplinas{% endblock %}
+{% block content %}
+<h2>Disciplinas</h2>
+<a href="{{ url_for('disciplinas.nova') }}" class="btn btn-primary mb-3">Nova Disciplina</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Sigla</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in disciplinas %}
+        <tr>
+            <td>{{ d.nome }}</td>
+            <td>{{ d.sigla }}</td>
+            <td>
+                <a href="{{ url_for('disciplinas.editar', id=d.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                <a href="{{ url_for('disciplinas.excluir', id=d.id) }}" class="btn btn-sm btn-danger">Excluir</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

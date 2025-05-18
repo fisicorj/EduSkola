@@ -2,6 +2,7 @@
 {% block title %}Painel{% endblock %}
 {% block content %}
 <h2>Painel Administrativo</h2>
+<p>Total de Turmas: <strong>{{ total_turmas }}</strong></p>
 <p>Total de Instituições: <strong>{{ total }}</strong></p>
 <a href="{{ url_for('instituicoes.listar') }}" class="btn btn-primary">Gerenciar Instituições</a>
 {% endblock %}
