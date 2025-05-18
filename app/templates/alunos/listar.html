@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Alunos{% endblock %}
+{% block content %}
+<h2>Alunos</h2>
+<a href="{{ url_for('alunos.novo') }}" class="btn btn-primary mb-3">Novo Aluno</a>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>E-mail</th>
+      <th>Matrícula</th>
+      <th>Turma</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for a in alunos %}
+    <tr>
+      <td>{{ a.nome }}</td>
+      <td>{{ a.email }}</td>
+      <td>{{ a.matricula }}</td>
+      <td>{{ a.turma.nome }}</td>
+      <td>
+        <a href="{{ url_for('alunos.editar', id=a.id) }}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{{ url_for('alunos.excluir', id=a.id) }}" class="btn btn-sm btn-danger">Excluir</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<h2>{{ titulo }}</h2>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">Nome</label>
+    <input type="text" name="nome" value="{{ aluno.nome if aluno else '' }}"
+           class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">E-mail</label>
+    <input type="email" name="email" value="{{ aluno.email if aluno else '' }}"
+           class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Matrícula</label>
+    <input type="text" name="matricula" value="{{ aluno.matricula if aluno else '' }}"
+           class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Turma</label>
+    <select name="turma_id" class="form-select" required>
+      {% for turma in turmas %}
+        <option value="{{ turma.id }}"
+          {% if aluno and aluno.turma_id == turma.id %}selected{% endif %}>
+          {{ turma.nome }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn btn-success">Salvar</button>
+  <a href="{{ url_for('alunos.listar') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
