@@ -274,8 +274,8 @@ def painel():
             valores_turma=valores_turma,
             labels_prof=labels_prof,
             valores_prof=valores_prof,
-            dias=dias,
-            contagens=contagens,
+            #dias=dias,
+            #contagens=contagens,
             instituicoes=Instituicao.query.all()
         )
     except Exception as e:
