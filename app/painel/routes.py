@@ -219,9 +219,7 @@ def baixar_template(nome):
 @painel_bp.route('/')
 @login_required
 def painel():
-    """Dashboard with statistics and import history"""
     try:
-        # Basic statistics
         stats = {
             'instituicoes': Instituicao.query.count(),
             'turmas': Turma.query.count(),
@@ -230,7 +228,6 @@ def painel():
             'disciplinas': Disciplina.query.count()
         }
 
-        # Data for charts
         alunos_por_turma = db.session.query(
             Turma.nome.label('turma'),
             func.count(Aluno.id).label('quantidade')
@@ -241,7 +238,27 @@ def painel():
             func.count(Disciplina.id).label('quantidade')
         ).join(Disciplina).group_by(Professor.id).order_by(desc('quantidade')).limit(10).all()
 
-        # Import history
+        # Dados formatados para os gráficos do Chart.js
+        labels_turma = [t.turma for t in alunos_por_turma]
+        valores_turma = [t.quantidade for t in alunos_por_turma]
+
+        labels_prof = [p.professor for p in disciplinas_por_professor]
+        valores_prof = [p.quantidade for p in disciplinas_por_professor]
+
+        # Gráfico de importações nos últimos 7 dias
+        dias = []
+        contagens = []
+        resultados = (
+            db.session.query(func.strftime('%d/%m', Importacao.data), func.count())
+            .group_by(func.date(Importacao.data))
+            .order_by(func.date(Importacao.data).desc())
+            .limit(7)
+            .all()
+        )
+        for dia, count in reversed(resultados):  # reverse para ordem cronológica
+            dias.append(dia)
+            contagens.append(count)
+
         historico_importacoes = Importacao.query.order_by(desc(Importacao.data)).limit(5).all()
         ultima_importacao = Importacao.query.order_by(desc(Importacao.data)).first()
 
@@ -252,7 +269,14 @@ def painel():
             disciplinas_por_professor=disciplinas_por_professor,
             historico_importacoes=historico_importacoes,
             ultima_importacao=ultima_importacao,
-            tipos=['instituicoes', 'cursos', 'turmas', 'alunos', 'professores', 'disciplinas']
+            tipos=['instituicoes', 'cursos', 'turmas', 'alunos', 'professores', 'disciplinas'],
+            labels_turma=labels_turma,
+            valores_turma=valores_turma,
+            labels_prof=labels_prof,
+            valores_prof=valores_prof,
+            dias=dias,
+            contagens=contagens,
+            instituicoes=Instituicao.query.all()
         )
     except Exception as e:
         flash(f"Erro ao carregar painel: {str(e)}", 'danger')
