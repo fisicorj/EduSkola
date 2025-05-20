@@ -1,0 +1,96 @@
+
+:root {
+  --color-bg: #f4f6f9;
+  --color-sidebar: #1e293b;
+  --color-primary: #2563eb;
+  --color-accent: #3b82f6;
+  --color-text: #1f2937;
+  --color-white: #ffffff;
+  --color-dark-bg: #0f172a;
+  --color-dark-card: #1e293b;
+  --color-dark-text: #f8fafc;
+}
+
+html, body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.sidebar {
+  width: 240px;
+  background-color: var(--color-sidebar) !important;
+}
+
+.nav-link {
+  color: var(--color-white) !important;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.nav-link i,
+.nav-link svg {
+  margin-right: 0.5rem;
+  width: 18px;
+  height: 18px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  background-color: var(--color-white);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  background-color: var(--color-white);
+}
+
+.form-control,
+.form-select {
+  border-radius: 6px;
+}
+
+/* Dark Mode */
+.dark-mode body {
+  background-color: var(--color-dark-bg);
+  color: var(--color-dark-text);
+}
+
+.dark-mode .sidebar {
+  background-color: var(--color-dark-card) !important;
+}
+
+.dark-mode .nav-link {
+  color: var(--color-dark-text) !important;
+}
+
+.dark-mode .nav-link:hover,
+.dark-mode .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark-mode .card {
+  background-color: var(--color-dark-card);
+  color: var(--color-dark-text);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .table,
+.dark-mode .form-control,
+.dark-mode .form-select {
+  background-color: #1f2937;
+  color: var(--color-dark-text);
+  border: 1px solid #334155;
+}
+
+.dark-mode .form-control::placeholder {
+  color: #94a3b8;
+}

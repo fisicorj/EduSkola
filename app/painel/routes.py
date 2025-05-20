@@ -21,6 +21,24 @@ def allowed_file(filename):
 def registrar_importacao(tipo, status, detalhes):
     """Registra uma operação de importação no banco de dados"""
     try:
+        from app.models import Nota, Avaliacao, Disciplina
+
+        notas_por_aluno = db.session.query(
+            Aluno.nome.label('aluno'),
+            Disciplina.nome.label('disciplina'),
+            Nota.valor.label('valor')
+        ).join(Nota, Nota.aluno_id == Aluno.id)\
+         .join(Avaliacao, Nota.avaliacao_id == Avaliacao.id)\
+         .join(Disciplina, Avaliacao.disciplina_id == Disciplina.id)\
+         .order_by(Aluno.nome).limit(20).all()
+
+        media_por_disciplina = db.session.query(
+            Disciplina.nome.label('disciplina'),
+            func.avg(Nota.valor).label('media')
+        ).join(Avaliacao, Avaliacao.disciplina_id == Disciplina.id)\
+         .join(Nota, Nota.avaliacao_id == Avaliacao.id)\
+         .group_by(Disciplina.id).all()
+    
         registro = Importacao(
             tipo=tipo,
             status=status,
@@ -65,18 +83,36 @@ def importar():
         
         return redirect(url_for(f'painel.importar_{tipo}', caminho=caminho))
 
-    return render_template('painel/importar.html', tipos=tipos)
+    return render_template('painel/painel.html')
 
 def processar_importacao(caminho, tipo, modelo, campos_obrigatorios, campos_unico=None):
     """Processa a importação de dados de um arquivo"""
     try:
+        from app.models import Nota, Avaliacao, Disciplina
+
+        notas_por_aluno = db.session.query(
+            Aluno.nome.label('aluno'),
+            Disciplina.nome.label('disciplina'),
+            Nota.valor.label('valor')
+        ).join(Nota, Nota.aluno_id == Aluno.id)\
+         .join(Avaliacao, Nota.avaliacao_id == Avaliacao.id)\
+         .join(Disciplina, Avaliacao.disciplina_id == Disciplina.id)\
+         .order_by(Aluno.nome).limit(20).all()
+
+        media_por_disciplina = db.session.query(
+            Disciplina.nome.label('disciplina'),
+            func.avg(Nota.valor).label('media')
+        ).join(Avaliacao, Avaliacao.disciplina_id == Disciplina.id)\
+         .join(Nota, Nota.avaliacao_id == Avaliacao.id)\
+         .group_by(Disciplina.id).all()
+    
         # Read file based on extension
         if caminho.endswith('.xlsx'):
-            df = pd.read_excel(caminho, dtype=str)  # Read all as string to avoid type issues
+            df = pd.read_excel(caminho, dtype=str)
         else:
             df = pd.read_csv(caminho, dtype=str)
             
-        df = df.where(pd.notnull(df), None)  # Convert NaN to None
+        df = df.where(pd.notnull(df), None)
         inseridos, ignorados, erros = 0, 0, 0
         
         for _, row in df.iterrows():
@@ -125,7 +161,7 @@ def processar_importacao(caminho, tipo, modelo, campos_obrigatorios, campos_unic
             except Exception as e:
                 current_app.logger.error(f"Erro ao remover arquivo {caminho}: {str(e)}")
 
-# Individual import routes (kept simple by using the processar_importacao function)
+# Rotas de importação individuais
 @painel_bp.route('/importar/instituicoes')
 @login_required
 def importar_instituicoes():
@@ -220,6 +256,8 @@ def baixar_template(nome):
 @login_required
 def painel():
     try:
+        from app.models import Nota, Avaliacao
+
         stats = {
             'instituicoes': Instituicao.query.count(),
             'turmas': Turma.query.count(),
@@ -238,29 +276,31 @@ def painel():
             func.count(Disciplina.id).label('quantidade')
         ).join(Disciplina).group_by(Professor.id).order_by(desc('quantidade')).limit(10).all()
 
-        # Dados formatados para os gráficos do Chart.js
+        notas_por_aluno = db.session.query(
+            Aluno.nome.label('aluno'),
+            Disciplina.nome.label('disciplina'),
+            Nota.valor.label('valor')
+        ).join(Nota, Nota.aluno_id == Aluno.id)\
+         .join(Avaliacao, Nota.avaliacao_id == Avaliacao.id)\
+         .join(Disciplina, Avaliacao.disciplina_id == Disciplina.id)\
+         .order_by(Aluno.nome).limit(20).all()
+
+        media_por_disciplina = db.session.query(
+            Disciplina.nome.label('disciplina'),
+            func.avg(Nota.valor).label('media')
+        ).join(Avaliacao, Avaliacao.disciplina_id == Disciplina.id)\
+         .join(Nota, Nota.avaliacao_id == Avaliacao.id)\
+         .group_by(Disciplina.id).all()
+
         labels_turma = [t.turma for t in alunos_por_turma]
         valores_turma = [t.quantidade for t in alunos_por_turma]
 
         labels_prof = [p.professor for p in disciplinas_por_professor]
         valores_prof = [p.quantidade for p in disciplinas_por_professor]
 
-        # Gráfico de importações nos últimos 7 dias
-        dias = []
-        contagens = []
-        resultados = (
-            db.session.query(func.strftime('%d/%m', Importacao.data), func.count())
-            .group_by(func.date(Importacao.data))
-            .order_by(func.date(Importacao.data).desc())
-            .limit(7)
-            .all()
-        )
-        for dia, count in reversed(resultados):  # reverse para ordem cronológica
-            dias.append(dia)
-            contagens.append(count)
-
         historico_importacoes = Importacao.query.order_by(desc(Importacao.data)).limit(5).all()
         ultima_importacao = Importacao.query.order_by(desc(Importacao.data)).first()
+        tipos = ['instituicoes', 'cursos', 'turmas', 'alunos', 'professores', 'disciplinas']
 
         return render_template(
             'painel/painel.html',
@@ -269,13 +309,13 @@ def painel():
             disciplinas_por_professor=disciplinas_por_professor,
             historico_importacoes=historico_importacoes,
             ultima_importacao=ultima_importacao,
-            tipos=['instituicoes', 'cursos', 'turmas', 'alunos', 'professores', 'disciplinas'],
+            tipos=tipos,
             labels_turma=labels_turma,
             valores_turma=valores_turma,
             labels_prof=labels_prof,
             valores_prof=valores_prof,
-            #dias=dias,
-            #contagens=contagens,
+            notas_por_aluno=notas_por_aluno,
+            media_por_disciplina=media_por_disciplina,
             instituicoes=Instituicao.query.all()
         )
     except Exception as e:
