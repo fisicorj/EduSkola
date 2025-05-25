@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Editar' if semestre else 'Novo' }} Semestre Letivo{% endblock %}
+
+{% block content %}
+
+<h2>{{ 'Editar' if semestre else 'Novo' }} Semestre Letivo</h2>
+
+<form method="POST">
+    <div class="mb-3">
+        <label class="form-label" for="ano">Ano</label>
+        <input 
+            type="number" 
+            class="form-control" 
+            name="ano" 
+            id="ano" 
+            required 
+            value="{{ semestre.ano if semestre else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="semestre">Semestre</label>
+        <input 
+            type="number" 
+            class="form-control" 
+            name="semestre" 
+            id="semestre" 
+            required 
+            value="{{ semestre.semestre if semestre else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="data_inicio">Data Início</label>
+        <input 
+            type="date" 
+            class="form-control" 
+            name="data_inicio" 
+            id="data_inicio" 
+            required 
+            value="{{ semestre.data_inicio if semestre else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label" for="data_fim">Data Fim</label>
+        <input 
+            type="date" 
+            class="form-control" 
+            name="data_fim" 
+            id="data_fim" 
+            required 
+            value="{{ semestre.data_fim if semestre else '' }}">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ url_for('semestres.listar') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+{% endblock %}

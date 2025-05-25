@@ -2,31 +2,31 @@
 {% block title %}Instituições{% endblock %}
 {% block content %}
 <h2>Instituições</h2>
-<a href="{{ url_for('instituicoes.nova') }}" class="btn btn-primary mb-3">Nova Instituição</a>
+<a class="btn btn-primary mb-3" href="{{ url_for('instituicoes.nova') }}">Nova Instituição</a>
 <table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Sigla</th>
-            <th>Cidade</th>
-            <th>Tipo</th>
-            <th>Média</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Sigla</th>
+<th>Cidade</th>
+<th>Tipo</th>
+<th>Média</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody>
         {% for i in instituicoes %}
         <tr>
-            <td>{{ i.nome }}</td>
-            <td>{{ i.sigla }}</td>
-            <td>{{ i.cidade }}</td>
-            <td>{{ i.tipo }}</td>
-             <td>{{ i.media_aprovacao }}</td>
-            <td>
-                <a href="{{ url_for('instituicoes.editar', id=i.id) }}" class="btn btn-sm btn-warning">Editar</a>
-                <a href="{{ url_for('instituicoes.excluir', id=i.id) }}" class="btn btn-sm btn-danger">Excluir</a>
-            </td>
-        </tr>
+<td>{{ i.nome }}</td>
+<td>{{ i.sigla }}</td>
+<td>{{ i.cidade }}</td>
+<td>{{ i.tipo }}</td>
+<td>{{ i.media_aprovacao }}</td>
+<td>
+<a class="btn btn-sm btn-warning" href="{{ url_for('instituicoes.editar', id=i.id) }}">Editar</a>
+<a class="btn btn-sm btn-danger" href="{{ url_for('instituicoes.excluir', id=i.id) }}">Excluir</a>
+</td>
+</tr>
         {% endfor %}
     </tbody>
 </table>

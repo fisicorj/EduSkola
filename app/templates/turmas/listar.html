@@ -1,14 +1,56 @@
 {% extends 'base.html' %}
+
 {% block title %}Turmas{% endblock %}
+
 {% block content %}
 <h2>Turmas</h2>
-<a href="{{ url_for('turmas.nova') }}" class="btn btn-primary mb-3">Nova Turma</a>
+
+<form class="mb-3 row g-3" method="get">
+    <div class="col-md-3">
+        <label class="form-label" for="semestre_id">Semestre</label>
+        <select class="form-select" name="semestre_id" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            {% for semestre in semestres %}
+            <option value="{{ semestre.id }}" {% if semestre_id == semestre.id %}selected{% endif %}>
+                {{ semestre.ano }} - {{ semestre.semestre }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="instituicao_id">Instituição</label>
+        <select class="form-select" name="instituicao_id" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            {% for inst in instituicoes %}
+            <option value="{{ inst.id }}" {% if instituicao_id == inst.id %}selected{% endif %}>
+                {{ inst.nome }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label" for="turno">Turno</label>
+        <select class="form-select" name="turno" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            {% for t in turnos %}
+            <option value="{{ t }}" {% if turno_sel == t %}selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<a class="btn btn-primary mb-3" href="{{ url_for('turmas.nova') }}">Nova Turma</a>
+
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>Nome</th>
             <th>Código</th>
             <th>Instituição</th>
+            <th>Semestre</th>
+            <th>Turno</th>
             <th>Ações</th>
         </tr>
     </thead>
@@ -19,9 +61,18 @@
             <td>{{ t.codigo }}</td>
             <td>{{ t.instituicao.nome }}</td>
             <td>
-                <a href="{{ url_for('turmas.editar', id=t.id) }}" class="btn btn-sm btn-warning">Editar</a>
-                <a href="{{ url_for('turmas.excluir', id=t.id) }}" class="btn btn-sm btn-danger">Excluir</a>
+                {{ t.semestre_letivo.ano if t.semestre_letivo else '' }} -
+                {{ t.semestre_letivo.semestre if t.semestre_letivo else '' }}
             </td>
+            <td>{{ t.turno }}</td>
+            <td>
+                <a class="btn btn-sm btn-warning" href="{{ url_for('turmas.editar', id=t.id) }}">Editar</a>
+                <a class="btn btn-sm btn-danger" href="{{ url_for('turmas.excluir', id=t.id) }}">Excluir</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6">Nenhuma turma encontrada com os filtros aplicados.</td>
         </tr>
         {% endfor %}
     </tbody>

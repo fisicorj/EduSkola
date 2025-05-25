@@ -33,7 +33,7 @@ class Turma(db.Model):
     turno = db.Column(db.String(20), nullable=False)  # Manhã, Tarde, Noite
     curso_id = db.Column(db.Integer, db.ForeignKey('curso.id'), nullable=False)
     instituicao_id = db.Column(db.Integer, db.ForeignKey('instituicao.id'), nullable=False)
-
+    semestre_letivo_id = db.Column(db.Integer, db.ForeignKey('semestre_letivo.id'), nullable=False)
     alunos = db.relationship('Aluno', backref='turma', lazy=True)
     disciplinas = db.relationship('Disciplina', backref='turma', lazy=True)
 
@@ -50,6 +50,9 @@ class Disciplina(db.Model):
     sigla = db.Column(db.String(10), nullable=False)
     turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'), nullable=False)
     professor_id = db.Column(db.Integer, db.ForeignKey('professor.id'))
+    semestre_letivo_id = db.Column(db.Integer, db.ForeignKey('semestre_letivo.id'), nullable=False)
+
+from app import db
 
 class Aluno(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,17 +60,21 @@ class Aluno(db.Model):
     email = db.Column(db.String(100), unique=True)
     matricula = db.Column(db.String(20), nullable=False, unique=True)
     turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'), nullable=False)
+    semestre_letivo_id = db.Column(db.Integer, db.ForeignKey('semestre_letivo.id'), nullable=False)
+    semestre_letivo = db.relationship('SemestreLetivo', backref='alunos')
+    notas = db.relationship('Nota', back_populates='aluno', cascade='all, delete-orphan')
 
 class Avaliacao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(50), nullable=False)
     peso = db.Column(db.Float, nullable=False, default=0.0)
-    
     turma_id = db.Column(db.Integer, db.ForeignKey('turma.id'), nullable=False)
     disciplina_id = db.Column(db.Integer, db.ForeignKey('disciplina.id'), nullable=False)
-
+    semestre_letivo_id = db.Column(db.Integer, db.ForeignKey('semestre_letivo.id'), nullable=False)
     turma = db.relationship('Turma', backref='avaliacoes')
     disciplina = db.relationship('Disciplina', backref='avaliacoes')
+    semestre_letivo = db.relationship('SemestreLetivo', backref='avaliacoes')
+
 
 class Nota(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -86,3 +93,13 @@ class Importacao(db.Model):
     detalhes = db.Column(db.Text)
     usuario_id = db.Column(db.Integer,db.ForeignKey('user.id', name='fk_importacao_usuario'),nullable=True)
     usuario = db.relationship('User', backref='importacoes')
+
+class SemestreLetivo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ano = db.Column(db.Integer, nullable=False)
+    semestre = db.Column(db.Integer, nullable=False)  # 1 ou 2
+    data_inicio = db.Column(db.Date, nullable=False)
+    data_fim = db.Column(db.Date, nullable=False)
+
+    turmas = db.relationship('Turma', backref='semestre_letivo', lazy=True)
+    disciplinas = db.relationship('Disciplina', backref='semestre_letivo', lazy=True)

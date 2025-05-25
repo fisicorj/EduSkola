@@ -1,35 +1,63 @@
 {% extends 'base.html' %}
 {% block title %}{{ titulo }}{% endblock %}
 {% block content %}
+
 <h2>{{ titulo }}</h2>
 <form method="post">
-  <div class="mb-3">
-    <label class="form-label">Nome</label>
-    <input type="text" name="nome" value="{{ aluno.nome if aluno else '' }}"
-           class="form-control" required>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">E-mail</label>
-    <input type="email" name="email" value="{{ aluno.email if aluno else '' }}"
-           class="form-control" required>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Matrícula</label>
-    <input type="text" name="matricula" value="{{ aluno.matricula if aluno else '' }}"
-           class="form-control" required>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Turma</label>
-    <select name="turma_id" class="form-select" required>
-      {% for turma in turmas %}
-        <option value="{{ turma.id }}"
-          {% if aluno and aluno.turma_id == turma.id %}selected{% endif %}>
-          {{ turma.nome }}
-        </option>
-      {% endfor %}
-    </select>
-  </div>
-  <button type="submit" class="btn btn-success">Salvar</button>
-  <a href="{{ url_for('alunos.listar') }}" class="btn btn-secondary">Cancelar</a>
+    <div class="mb-3">
+        <label class="form-label">Nome</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="nome" 
+            required 
+            value="{{ aluno.nome if aluno else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">E-mail</label>
+        <input 
+            type="email" 
+            class="form-control" 
+            name="email" 
+            required 
+            value="{{ aluno.email if aluno else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Matrícula</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="matricula" 
+            required 
+            value="{{ aluno.matricula if aluno else '' }}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Turma</label>
+        <select class="form-select" name="turma_id" required>
+            {% for turma in turmas %}
+            <option value="{{ turma.id }}" {% if aluno and aluno.turma_id == turma.id %}selected{% endif %}>
+                {{ turma.nome }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Semestre Letivo</label>
+        <select class="form-select" name="semestre_letivo_id" required>
+            {% for semestre in semestres %}
+            <option value="{{ semestre.id }}" {% if aluno and aluno.semestre_letivo_id == semestre.id %}selected{% endif %}>
+                {{ semestre.ano }} - {{ semestre.semestre }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar</button>
+    <a href="{{ url_for('alunos.listar') }}" class="btn btn-secondary">Cancelar</a>
 </form>
+
 {% endblock %}

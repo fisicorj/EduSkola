@@ -1,20 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}Lançamento de Notas{% endblock %}
+
+{% block title %}Lançar Notas{% endblock %}
+
 {% block content %}
 
-<h2>Lançamento de Notas - {{ turma.nome }} | {{ disciplina.nome }}</h2>
+<h2>Lançar Notas - {{ turma.nome }} - {{ disciplina.nome }} - {{ turma.semestre_letivo.ano }}/{{ turma.semestre_letivo.semestre }}</h2>
 
-{% if avaliacoes %}
-<form method="post" action="{{ url_for('notas.lancar') }}">
-    <input type="hidden" name="turma_id" value="{{ turma.id }}">
-    <input type="hidden" name="disciplina_id" value="{{ disciplina.id }}">
-
+<form method="post">
     <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Aluno</th>
                 {% for avaliacao in avaliacoes %}
-                    <th>{{ avaliacao.nome }}<br><small>{{ "%.0f"|format(avaliacao.peso * 100) }}%</small></th>
+                <th>{{ avaliacao.nome }} (Peso: {{ "%.2f"|format(avaliacao.peso) }})</th>
                 {% endfor %}
             </tr>
         </thead>
@@ -23,24 +21,26 @@
             <tr>
                 <td>{{ aluno.nome }}</td>
                 {% for avaliacao in avaliacoes %}
-                    {% set campo = "nota_{}_{}".format(aluno.id, avaliacao.id) %}
-                    <td>
-                        <input type="number" step="0.01" min="0" max="10" name="{{ campo }}"
-                               value="{{ notas.get((aluno.id, avaliacao.id), '') }}"
-                               class="form-control" required>
-                    </td>
+                <td>
+                    <input 
+                        type="number" 
+                        class="form-control" 
+                        name="nota_{{ aluno.id }}_{{ avaliacao.id }}" 
+                        min="0" 
+                        max="10" 
+                        step="0.01" 
+                        value="{{ notas.get((aluno.id, avaliacao.id), '') }}">
+                </td>
                 {% endfor %}
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <button type="submit" class="btn btn-success">Salvar Notas</button>
-    <a href="{{ url_for('notas.lancar') }}" class="btn btn-secondary">Voltar</a>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar Notas</button>
+        <a href="{{ url_for('notas.selecionar_lancamento') }}" class="btn btn-secondary">Voltar</a>
+    </div>
 </form>
-{% else %}
-    <div class="alert alert-warning">Nenhuma avaliação encontrada para esta turma e disciplina.</div>
-    <a href="{{ url_for('avaliacoes.listar') }}" class="btn btn-primary">Cadastrar Avaliações</a>
-{% endif %}
 
 {% endblock %}

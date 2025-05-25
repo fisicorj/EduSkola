@@ -1,54 +1,54 @@
 {% extends 'base.html' %}
-{% block title %}Resultados da Disciplina{% endblock %}
+
+{% block title %}Resultado: {{ disciplina.nome }}{% endblock %}
+
 {% block content %}
 
-<h2>Resultados – {{ disciplina.nome }} | {{ turma.nome }}</h2>
+<h2>Resultado - Turma: {{ turma.nome }} - Disciplina: {{ disciplina.nome }}</h2>
 
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>Aluno</th>
-            {% for avaliacao in avaliacoes %}
-                <th>{{ avaliacao.nome }}</th>
-            {% endfor %}
+            <th>Notas</th>
             <th>Média</th>
             <th>Situação</th>
         </tr>
     </thead>
     <tbody>
-        {% for r in resultados %}
+        {% for resultado in resultados %}
         <tr>
-            <td>{{ r.aluno.nome }}</td>
-            {% for nota in r.notas %}
-                <td>
-                    {% if nota is not none %}
-                        {{ "%.2f"|format(nota) }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-            {% endfor %}
+            <td>{{ resultado.aluno.nome }}</td>
             <td>
-                {% if r.media is not none %}
-                    {{ "%.2f"|format(r.media) }}
+                {% for n in resultado.notas %}
+                    {{ "%.2f"|format(n) if n is not none else '---' }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+            <td>
+                {% if resultado.media is not none %}
+                    {{ "%.2f"|format(resultado.media) }}
                 {% else %}
-                    -
+                    ---
                 {% endif %}
             </td>
             <td>
-                {% if r.situacao == 'Aprovado' %}
-                    <span class="text-success">{{ r.situacao }}</span>
-                {% elif r.situacao == 'Reprovado' %}
-                    <span class="text-danger">{{ r.situacao }}</span>
-                {% else %}
-                    <span class="text-muted">{{ r.situacao }}</span>
-                {% endif %}
+                <span class="badge 
+                    {% if resultado.situacao == 'Aprovado' %}
+                        bg-success
+                    {% elif resultado.situacao == 'Reprovado' %}
+                        bg-danger
+                    {% else %}
+                        bg-secondary
+                    {% endif %}
+                ">
+                    {{ resultado.situacao }}
+                </span>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<a href="{{ url_for('notas.selecionar_resultado') }}" class="btn btn-secondary">Voltar</a>
+<a href="{{ url_for('notas.selecionar_resultado') }}" class="btn btn-secondary mt-3">Voltar</a>
 
 {% endblock %}

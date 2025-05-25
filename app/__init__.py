@@ -37,6 +37,8 @@ def create_app():
     from app.alunos.routes import alunos_bp
     from app.avaliacoes.routes import avaliacoes_bp
     from app.notas.routes import notas_bp
+    from app.semestres.routes import semestres_bp
+
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(painel_bp)
@@ -48,5 +50,7 @@ def create_app():
     app.register_blueprint(alunos_bp)
     app.register_blueprint(avaliacoes_bp)
     app.register_blueprint(notas_bp)
+    app.register_blueprint(semestres_bp)
+
 
     return app

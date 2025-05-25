@@ -1,55 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Painel de Importação
-<div class="row mt-4">
-  <div class="col-md-6">
-    <h5>Notas por Aluno</h5>
-    <table class="table table-sm table-striped">
-      <thead>
-        <tr>
-          <th>Aluno</th>
-          <th>Disciplina</th>
-          <th>Nota</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for nota in notas_por_aluno %}
-        <tr>
-          <td>{{ nota.aluno }}</td>
-          <td>{{ nota.disciplina }}</td>
-          <td>{{ nota.valor }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="col-md-6">
-    <h5>Notas por Disciplina</h5>
-    <table class="table table-sm table-bordered">
-      <thead>
-        <tr>
-          <th>Disciplina</th>
-          <th>Média</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in media_por_disciplina %}
-        <tr>
-          <td>{{ item.disciplina }}</td>
-          <td>{{ item.media }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+{% block title %}Painel de Importação{% endblock %}
 
-{% endblock %}
 {% block content %}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="row g-4">
-    <!-- Cartões de Estatísticas -->
     <div class="col-md-3">
         <div class="card text-white bg-primary">
             <div class="card-header">Instituições</div>
@@ -78,18 +34,17 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card text-white bg-secondary">
+        <div class="card bg-secondary text-white">
             <div class="card-header">Lançamento de Notas</div>
             <div class="card-body">
                 <h5 class="card-title">Notas</h5>
                 <p class="card-text">Registrar notas dos alunos</p>
-                <a href="{{ url_for('notas.lancar') }}" class="btn btn-light btn-sm">Lançar Notas</a>
+                <a class="btn btn-dark btn-sm w-100" href="{{ url_for('notas.selecionar_lancamento') }}">Lançar Notas</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Upload Rápido -->
 <div class="card my-4">
     <div class="card-header">Upload Rápido</div>
     <div class="card-body">
@@ -98,12 +53,12 @@
                 <div class="col-md-4">
                     <select class="form-select" name="tipo" required>
                         {% for tipo in tipos %}
-                        <option value="{{ tipo }}">{{ tipo.title() }}</option>
+                            <option value="{{ tipo }}">{{ tipo.title() }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <input class="form-control" type="file" name="arquivo" required>
+                    <input type="file" class="form-control" name="arquivo" required>
                 </div>
                 <div class="col-md-2">
                     <button class="btn btn-success w-100">Importar</button>
@@ -113,14 +68,18 @@
     </div>
 </div>
 
-<!-- Modelos -->
 <div class="card mb-4">
     <div class="card-header">Modelos de Importação (.xlsx)</div>
     <div class="card-body">
+        <div class="mb-3">
+            <a class="btn btn-outline-success w-100 mb-2" href="{{ url_for('painel.baixar_todos_templates') }}">
+                📦 Baixar Todos os Modelos (.zip)
+            </a>
+        </div>
         <div class="row">
             {% for tipo in tipos %}
             <div class="col-md-4 mb-2">
-                <a href="{{ url_for('painel.baixar_template', nome=tipo ~ '.xlsx') }}" class="btn btn-outline-primary w-100">
+                <a class="btn btn-outline-primary w-100" href="{{ url_for('painel.baixar_template', nome=tipo ~ '.xlsx') }}">
                     Baixar modelo de {{ tipo.title() }}
                 </a>
             </div>
@@ -129,26 +88,41 @@
     </div>
 </div>
 
-<!-- Histórico -->
 <h4>Histórico de Importações</h4>
 <table class="table table-striped table-bordered">
-    <thead><tr><th>Data</th><th>Tipo</th><th>Status</th></tr></thead>
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Status</th>
+        </tr>
+    </thead>
     <tbody>
         {% for i in historico_importacoes %}
         <tr>
             <td>{{ i.data }}</td>
             <td>{{ i.tipo }}</td>
-            <td><span class="badge bg-{{ 'success' if i.status == 'sucesso' else 'danger' }}">{{ i.status }}</span></td>
+            <td>
+                <span class="badge bg-{{ 'success' if i.status == 'sucesso' else 'danger' }}">{{ i.status }}</span>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<!-- Tabela Interativa -->
 <h4>Instituições</h4>
 <input type="text" class="form-control mb-2" placeholder="Filtrar por cidade ou tipo..." id="filtro">
+
 <table class="table table-bordered" id="tabela-instituicoes">
-    <thead><tr><th>Nome</th><th>Sigla</th><th>Cidade</th><th>Tipo</th><th>Ações</th></tr></thead>
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Sigla</th>
+            <th>Cidade</th>
+            <th>Tipo</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
     <tbody>
         {% for i in instituicoes %}
         <tr>
@@ -157,15 +131,14 @@
             <td>{{ i.cidade }}</td>
             <td>{{ i.tipo }}</td>
             <td>
-                <a href="{{ url_for('instituicoes.editar', id=i.id) }}" class="btn btn-sm btn-warning">Editar</a>
-                <a href="{{ url_for('instituicoes.excluir', id=i.id) }}" class="btn btn-sm btn-danger">Excluir</a>
+                <a class="btn btn-sm btn-warning" href="{{ url_for('instituicoes.editar', id=i.id) }}">Editar</a>
+                <a class="btn btn-sm btn-danger" href="{{ url_for('instituicoes.excluir', id=i.id) }}">Excluir</a>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
-<!-- Gráficos -->
 <div class="row g-4 mt-3">
     <div class="col-md-6">
         <h5>Alunos por Turma</h5>
@@ -177,84 +150,85 @@
     </div>
 </div>
 
-<script>
-const ctxTurmas = document.getElementById('graficoAlunosTurma');
-new Chart(ctxTurmas, {
-    type: 'bar',
-    data: {
-        labels: {{ labels_turma|safe }},
-        datasets: [{
-            label: 'Alunos por Turma',
-            data: {{ valores_turma|safe }},
-            backgroundColor: 'rgba(54, 162, 235, 0.7)'
-        }]
-    }
-});
-
-const ctxProfessores = document.getElementById('graficoDisciplinasProfessor');
-new Chart(ctxProfessores, {
-    type: 'bar',
-    data: {
-        labels: {{ labels_prof|safe }},
-        datasets: [{
-            label: 'Disciplinas por Professor',
-            data: {{ valores_prof|safe }},
-            backgroundColor: 'rgba(255, 99, 132, 0.7)'
-        }]
-    }
-});
-
-document.getElementById('filtro').addEventListener('keyup', function () {
-    const termo = this.value.toLowerCase();
-    const linhas = document.querySelectorAll('#tabela-instituicoes tbody tr');
-    linhas.forEach(function (linha) {
-        const texto = linha.innerText.toLowerCase();
-        linha.style.display = texto.includes(termo) ? '' : 'none';
-    });
-});
-</script>
-
 <div class="row mt-4">
-  <div class="col-md-6">
-    <h5>Notas por Aluno</h5>
-    <table class="table table-sm table-striped">
-      <thead>
-        <tr>
-          <th>Aluno</th>
-          <th>Disciplina</th>
-          <th>Nota</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for nota in notas_por_aluno %}
-        <tr>
-          <td>{{ nota.aluno }}</td>
-          <td>{{ nota.disciplina }}</td>
-          <td>{{ nota.valor }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="col-md-6">
-    <h5>Notas por Disciplina</h5>
-    <table class="table table-sm table-bordered">
-      <thead>
-        <tr>
-          <th>Disciplina</th>
-          <th>Média</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in media_por_disciplina %}
-        <tr>
-          <td>{{ item.disciplina }}</td>
-          <td>{{ item.media }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    <div class="col-md-6">
+        <h5>Notas por Aluno</h5>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Aluno</th>
+                    <th>Disciplina</th>
+                    <th>Nota</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nota in notas_por_aluno %}
+                <tr>
+                    <td>{{ nota.aluno }}</td>
+                    <td>{{ nota.disciplina }}</td>
+                    <td>{{ nota.valor }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-6">
+        <h5>Notas por Disciplina</h5>
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Disciplina</th>
+                    <th>Média</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in media_por_disciplina %}
+                <tr>
+                    <td>{{ item.disciplina }}</td>
+                    <td>{{ item.media }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<script>
+    const ctxTurmas = document.getElementById('graficoAlunosTurma');
+    new Chart(ctxTurmas, {
+        type: 'bar',
+        data: {
+            labels: {{ labels_turma|safe }},
+            datasets: [{
+                label: 'Alunos por Turma',
+                data: {{ valores_turma|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+            }]
+        }
+    });
+
+    const ctxProfessores = document.getElementById('graficoDisciplinasProfessor');
+    new Chart(ctxProfessores, {
+        type: 'bar',
+        data: {
+            labels: {{ labels_prof|safe }},
+            datasets: [{
+                label: 'Disciplinas por Professor',
+                data: {{ valores_prof|safe }},
+                backgroundColor: 'rgba(255, 99, 132, 0.7)'
+            }]
+        }
+    });
+
+    document.getElementById('filtro').addEventListener('keyup', function() {
+        const termo = this.value.toLowerCase();
+        const linhas = document.querySelectorAll('#tabela-instituicoes tbody tr');
+        linhas.forEach(function(linha) {
+            const texto = linha.innerText.toLowerCase();
+            linha.style.display = texto.includes(termo) ? '' : 'none';
+        });
+    });
+</script>
 
 {% endblock %}

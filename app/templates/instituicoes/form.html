@@ -1,35 +1,66 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ titulo }}{% endblock %}
+
 {% block content %}
+
 <h2>{{ titulo }}</h2>
+
 <form method="post">
     <div class="mb-3">
-        <label for="nome" class="form-label">Nome</label>
-        <input type="text" name="nome" value="{{ instituicao.nome if instituicao else '' }}" class="form-control" required>
+        <label class="form-label" for="nome">Nome</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="nome" 
+            required 
+            value="{{ instituicao.nome if instituicao else '' }}">
     </div>
+
     <div class="mb-3">
-        <label for="sigla" class="form-label">Sigla</label>
-        <input type="text" name="sigla" value="{{ instituicao.sigla if instituicao else '' }}" class="form-control" required>
+        <label class="form-label" for="sigla">Sigla</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="sigla" 
+            required 
+            value="{{ instituicao.sigla if instituicao else '' }}">
     </div>
+
     <div class="mb-3">
-        <label for="cidade" class="form-label">Cidade</label>
-        <input type="text" name="cidade" value="{{ instituicao.cidade if instituicao else '' }}" class="form-control" required>
+        <label class="form-label" for="cidade">Cidade</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="cidade" 
+            required 
+            value="{{ instituicao.cidade if instituicao else '' }}">
     </div>
+
     <div class="mb-3">
-    <label for="media_aprovacao" class="form-label">Média de Aprovação</label>
-    <input type="number" step="0.1" name="media_aprovacao"
-           value="{{ instituicao.media_aprovacao if instituicao else '5.0' }}"
-           class="form-control" required>
+        <label class="form-label" for="media_aprovacao">Média de Aprovação</label>
+        <input 
+            type="number" 
+            class="form-control" 
+            name="media_aprovacao" 
+            required 
+            step="0.1" 
+            value="{{ instituicao.media_aprovacao if instituicao else '5.0' }}">
     </div>
+
     <div class="mb-3">
-        <label for="tipo" class="form-label">Tipo</label>
-        <select name="tipo" class="form-select" required>
+        <label class="form-label" for="tipo">Tipo</label>
+        <select class="form-select" name="tipo" required>
             <option value="">Selecione...</option>
             <option value="Pública" {% if instituicao and instituicao.tipo == 'Pública' %}selected{% endif %}>Pública</option>
             <option value="Privada" {% if instituicao and instituicao.tipo == 'Privada' %}selected{% endif %}>Privada</option>
         </select>
     </div>
-    <button type="submit" class="btn btn-success">Salvar</button>
-    <a href="{{ url_for('instituicoes.listar') }}" class="btn btn-secondary">Cancelar</a>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{{ url_for('instituicoes.listar') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
 </form>
+
 {% endblock %}

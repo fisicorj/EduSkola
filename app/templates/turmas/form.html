@@ -1,41 +1,65 @@
 {% extends 'base.html' %}
 {% block title %}{{ titulo }}{% endblock %}
+
 {% block content %}
+
 <h2>{{ titulo }}</h2>
 <form method="post">
+
     <div class="mb-3">
-        <label for="nome" class="form-label">Nome</label>
-        <input type="text" name="nome" value="{{ turma.nome if turma else '' }}" class="form-control" required>
+        <label class="form-label" for="nome">Nome</label>
+        <input class="form-control" name="nome" required type="text" value="{{ turma.nome if turma else '' }}">
     </div>
+
     <div class="mb-3">
-        <label for="codigo" class="form-label">Código</label>
-        <input type="text" name="codigo" value="{{ turma.codigo if turma else '' }}" class="form-control" required>
+        <label class="form-label" for="codigo">Código</label>
+        <input class="form-control" name="codigo" required type="text" value="{{ turma.codigo if turma else '' }}">
     </div>
+
     <div class="mb-3">
-        <label for="turno" class="form-label">Turno</label>
-        <select name="turno" class="form-select" required>
+        <label class="form-label" for="turno">Turno</label>
+        <select class="form-select" name="turno" required>
             {% for turno in ['Manhã', 'Tarde', 'Noite'] %}
-                <option value="{{ turno }}" {% if turma and turma.turno == turno %}selected{% endif %}>{{ turno }}</option>
+            <option value="{{ turno }}" {% if turma and turma.turno == turno %}selected{% endif %}>{{ turno }}</option>
             {% endfor %}
         </select>
     </div>
+
     <div class="mb-3">
-        <label for="curso_id" class="form-label">Curso</label>
-        <select name="curso_id" class="form-select" required>
+        <label class="form-label" for="curso_id">Curso</label>
+        <select class="form-select" name="curso_id" required>
             {% for curso in cursos %}
-                <option value="{{ curso.id }}" {% if turma and turma.curso_id == curso.id %}selected{% endif %}>{{ curso.nome }}</option>
+            <option value="{{ curso.id }}" {% if turma and turma.curso_id == curso.id %}selected{% endif %}>
+                {{ curso.nome }}
+            </option>
             {% endfor %}
         </select>
     </div>
+
     <div class="mb-3">
-        <label for="instituicao_id" class="form-label">Instituição</label>
-        <select name="instituicao_id" class="form-select" required>
-            {% for inst in instituicoes %}
-                <option value="{{ inst.id }}" {% if turma and turma.instituicao_id == inst.id %}selected{% endif %}>{{ inst.nome }}</option>
+        <label class="form-label" for="instituicao_id">Instituição</label>
+        <select class="form-select" name="instituicao_id" required>
+            {% for instituicao in instituicoes %}
+            <option value="{{ instituicao.id }}" {% if turma and turma.instituicao_id == instituicao.id %}selected{% endif %}>
+                {{ instituicao.nome }}
+            </option>
             {% endfor %}
         </select>
     </div>
-    <button type="submit" class="btn btn-success">Salvar</button>
-    <a href="{{ url_for('turmas.listar') }}" class="btn btn-secondary">Cancelar</a>
+
+    <div class="mb-3">
+        <label class="form-label" for="semestre_letivo_id">Semestre Letivo</label>
+        <select class="form-select" name="semestre_letivo_id" required>
+            {% for semestre in semestres %}
+            <option value="{{ semestre.id }}" {% if turma and turma.semestre_letivo_id == semestre.id %}selected{% endif %}>
+                {{ semestre.ano }} - {{ semestre.semestre }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button class="btn btn-success" type="submit">Salvar</button>
+    <a class="btn btn-secondary" href="{{ url_for('turmas.listar') }}">Cancelar</a>
 </form>
+
 {% endblock %}

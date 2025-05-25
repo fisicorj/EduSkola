@@ -1,0 +1,54 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('painel.painel') }}">Skola</a>
+        <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <!-- Administração -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Administração</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('instituicoes.listar') }}">Instituições</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('cursos.listar') }}">Cursos</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('semestres.listar') }}">Semestres Letivos</a></li>
+                    </ul>
+                </li>
+
+                <!-- Acadêmico -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Acadêmico</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('turmas.listar') }}">Turmas</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('alunos.listar') }}">Alunos</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('professores.listar') }}">Professores</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('disciplinas.listar') }}">Disciplinas</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Avaliações e Notas</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('avaliacoes.listar') }}">Avaliações</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('notas.selecionar_lancamento') }}">Lançar Notas</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('notas.selecionar_resultado') }}">Resultados</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('painel.importar') }}">Importar Dados</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Sair</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

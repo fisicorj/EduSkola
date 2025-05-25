@@ -1,40 +1,44 @@
 {% extends 'base.html' %}
-{% block title %}Selecionar Turma e Disciplina{% endblock %}
+{% block title %}Selecionar Lançamento de Notas{% endblock %}
+
 {% block content %}
+
 <h2>Selecionar Turma e Disciplina</h2>
-<form id="formSelecao">
-    <div class="mb-3">
-        <label for="turma_id" class="form-label">Turma</label>
-        <select name="turma_id" class="form-select" required>
-            {% for turma in turmas %}
-                <option value="{{ turma.id }}">{{ turma.nome }} - {{ turma.codigo }}</option>
-            {% endfor %}
-        </select>
-    </div>
 
-    <div class="mb-3">
-        <label for="disciplina_id" class="form-label">Disciplina</label>
-        <select name="disciplina_id" class="form-select" required>
-            {% for d in disciplinas %}
-                <option value="{{ d.id }}">{{ d.nome }} ({{ d.sigla }})</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <button type="button" class="btn btn-primary" onclick="redirecionar()">Continuar</button>
+<form class="mb-3" method="get">
+    <label for="semestre_id">Filtrar por Semestre:</label>
+    <select class="form-select" name="semestre_id" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        {% for semestre in semestres %}
+        <option value="{{ semestre.id }}" {% if semestre_id == semestre.id %}selected{% endif %}>
+            {{ semestre.ano }} - {{ semestre.semestre }}
+        </option>
+        {% endfor %}
+    </select>
 </form>
 
-<script>
-function redirecionar() {
-    const turmaId = document.querySelector('[name=turma_id]').value;
-    const disciplinaId = document.querySelector('[name=disciplina_id]').value;
+<form action="{{ url_for('notas.formulario_lancamento') }}" method="post">
+    <div class="mb-3">
+        <label for="turma_id">Turma:</label>
+        <select class="form-select" name="turma_id" required>
+            {% for turma in turmas %}
+            <option value="{{ turma.id }}">
+                {{ turma.nome }} - {{ turma.semestre_letivo.ano }}/{{ turma.semestre_letivo.semestre }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
 
-    if (turmaId && disciplinaId) {
-        const url = `/notas/lancar/${turmaId}/${disciplinaId}`;
-        window.location.href = url;
-    } else {
-        alert('Por favor, selecione a turma e a disciplina.');
-    }
-}
-</script>
+    <div class="mb-3">
+        <label for="disciplina_id">Disciplina:</label>
+        <select class="form-select" name="disciplina_id" required>
+            {% for disciplina in disciplinas %}
+            <option value="{{ disciplina.id }}">{{ disciplina.nome }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Continuar</button>
+</form>
+
 {% endblock %}

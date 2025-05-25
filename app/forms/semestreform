@@ -1,0 +1,10 @@
+from flask_wtf import FlaskForm
+from wtforms import IntegerField, DateField, SubmitField
+from wtforms.validators import DataRequired
+
+class SemestreForm(FlaskForm):
+    ano = IntegerField('Ano', validators=[DataRequired()])
+    semestre = IntegerField('Semestre', validators=[DataRequired()])
+    data_inicio = DateField('Data Início', validators=[DataRequired()])
+    data_fim = DateField('Data Fim', validators=[DataRequired()])
+    submit = SubmitField('Salvar')

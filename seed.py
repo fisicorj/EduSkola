@@ -1,63 +1,118 @@
 from app import create_app, db
-from app.models import Instituicao, Curso, Turma, Aluno, Professor
+from app.models import Instituicao, Curso, Turma, Aluno, Professor, Disciplina, Avaliacao, Nota, SemestreLetivo
+from datetime import date
 import random
 
 app = create_app()
+
 with app.app_context():
-    # Apagar dados anteriores respeitando a ordem de dependência
+    # ⚠️ Limpeza das tabelas (cuidado com produção!)
+    db.session.query(Nota).delete()
+    db.session.query(Avaliacao).delete()
     db.session.query(Aluno).delete()
+    db.session.query(Disciplina).delete()
     db.session.query(Turma).delete()
     db.session.query(Curso).delete()
     db.session.query(Professor).delete()
     db.session.query(Instituicao).delete()
+    db.session.query(SemestreLetivo).delete()
     db.session.commit()
 
-    # 1. Criar instituições
-    i1 = Instituicao(nome="Instituto Federal A", sigla="IFA", cidade="São Paulo", tipo="Pública", media_aprovacao=6.0)
-    i2 = Instituicao(nome="Universidade B", sigla="UNIB", cidade="Rio de Janeiro", tipo="Privada", media_aprovacao=7.0)
-    i3 = Instituicao(nome="Faculdade C", sigla="FAC", cidade="Belo Horizonte", tipo="Privada", media_aprovacao=5.5)
-    db.session.add_all([i1, i2, i3])
+    # ✅ Criar Semestres Letivos
+    semestres = [
+        SemestreLetivo(ano=2024, semestre=1, data_inicio=date(2024, 2, 1), data_fim=date(2024, 6, 30)),
+        SemestreLetivo(ano=2024, semestre=2, data_inicio=date(2024, 8, 1), data_fim=date(2024, 12, 15)),
+        SemestreLetivo(ano=2025, semestre=1, data_inicio=date(2025, 2, 1), data_fim=date(2025, 6, 30)),
+        SemestreLetivo(ano=2025, semestre=2, data_inicio=date(2025, 8, 1), data_fim=date(2025, 12, 15))
+    ]
+    db.session.add_all(semestres)
     db.session.commit()
 
-    # 2. Criar cursos
-    c1 = Curso(nome="Engenharia da Computação", sigla="ENGCOMP", instituicao_id=i1.id)
-    c2 = Curso(nome="Administração", sigla="ADM", instituicao_id=i1.id)
-    c3 = Curso(nome="Direito", sigla="DIR", instituicao_id=i2.id)
-    c4 = Curso(nome="Pedagogia", sigla="PED", instituicao_id=i3.id)
-    c5 = Curso(nome="Ciência de Dados", sigla="CDA", instituicao_id=i3.id)
-    db.session.add_all([c1, c2, c3, c4, c5])
+    # ✅ Criar Instituições
+    inst1 = Instituicao(nome='Instituto Alpha', sigla='IAL', cidade='São Paulo', tipo='Pública', media_aprovacao=6.0)
+    inst2 = Instituicao(nome='Faculdade Beta', sigla='FAB', cidade='Rio de Janeiro', tipo='Privada', media_aprovacao=7.0)
+    db.session.add_all([inst1, inst2])
     db.session.commit()
 
-    # 3. Criar professores
-    professores = []
-    for i in range(1, 6):
-        p = Professor(nome=f"Professor {i}", email=f"prof{i}@teste.com")
-        db.session.add(p)
-        professores.append(p)
+    # ✅ Criar Cursos
+    curso1 = Curso(nome='Engenharia de Software', sigla='ESW', instituicao_id=inst1.id)
+    curso2 = Curso(nome='Administração', sigla='ADM', instituicao_id=inst2.id)
+    db.session.add_all([curso1, curso2])
     db.session.commit()
 
-    # 4. Criar turmas
-    turnos = ["Manhã", "Tarde", "Noite"]
-    t1 = Turma(nome="Turma A", codigo="TURMA01", turno=turnos[0], curso_id=c1.id, instituicao_id=c1.instituicao_id)
-    t2 = Turma(nome="Turma B", codigo="TURMA02", turno=turnos[1], curso_id=c2.id, instituicao_id=c2.instituicao_id)
-    t3 = Turma(nome="Turma C", codigo="TURMA03", turno=turnos[2], curso_id=c3.id, instituicao_id=c3.instituicao_id)
-    t4 = Turma(nome="Turma D", codigo="TURMA04", turno=turnos[0], curso_id=c4.id, instituicao_id=c4.instituicao_id)
-    t5 = Turma(nome="Turma E", codigo="TURMA05", turno=turnos[1], curso_id=c5.id, instituicao_id=c5.instituicao_id)
-    t6 = Turma(nome="Turma F", codigo="TURMA06", turno=turnos[2], curso_id=c1.id, instituicao_id=c1.instituicao_id)
-    db.session.add_all([t1, t2, t3, t4, t5, t6])
+    # ✅ Criar Professores
+    professores = [
+        Professor(nome='João Silva', email='joao.silva@ial.edu.br'),
+        Professor(nome='Maria Souza', email='maria.souza@fab.edu.br')
+    ]
+    db.session.add_all(professores)
     db.session.commit()
 
-    # 5. Criar alunos
-    turmas = [t1, t2, t3, t4, t5, t6]
+    # ✅ Criar Turmas
+    turmas = []
+    for i, sem in enumerate(semestres):
+        turma = Turma(
+            nome=f'Turma {chr(65+i)}',
+            codigo=f'TURMA{chr(65+i)}',
+            turno=random.choice(['Manhã', 'Tarde', 'Noite']),
+            curso_id=curso1.id if i % 2 == 0 else curso2.id,
+            instituicao_id=curso1.instituicao_id if i % 2 == 0 else curso2.instituicao_id,
+            semestre_letivo_id=sem.id
+        )
+        turmas.append(turma)
+    db.session.add_all(turmas)
+    db.session.commit()
+
+    # ✅ Criar Disciplinas
+    disciplinas = []
+    for turma in turmas:
+        prof = random.choice(professores)
+        for d in ['Algoritmos', 'Matemática', 'Gestão']:
+            disc = Disciplina(
+                nome=f'{d} - {turma.nome}',
+                sigla=d[:3].upper(),
+                turma_id=turma.id,
+                professor_id=prof.id,
+                semestre_letivo_id=turma.semestre_letivo_id
+            )
+            disciplinas.append(disc)
+    db.session.add_all(disciplinas)
+    db.session.commit()
+
+    # ✅ Criar Alunos
     for i in range(1, 21):
         turma = random.choice(turmas)
         aluno = Aluno(
-            nome=f"Aluno {i}",
-            email=f"aluno{i}@teste.com",
-            matricula=f"2024{i:03}",
-            turma_id=turma.id
+            nome=f'Aluno {i}',
+            email=f'aluno{i}@exemplo.com',
+            matricula=f'2024{i:03}',
+            turma_id=turma.id,
+            semestre_letivo_id=turma.semestre_letivo_id
         )
         db.session.add(aluno)
-
     db.session.commit()
-    print("Base de dados esvaziada e repovoada com sucesso!")
+
+    # ✅ Criar Avaliações e Notas
+    alunos = Aluno.query.all()
+    for disciplina in disciplinas:
+        for i in range(1, 4):  # P1, P2, P3
+            avaliacao = Avaliacao(
+                nome=f'P{i}',
+                peso=0.3,
+                turma_id=disciplina.turma_id,
+                disciplina_id=disciplina.id,
+                semestre_letivo_id=disciplina.semestre_letivo_id
+            )
+            db.session.add(avaliacao)
+            db.session.commit()
+
+            for aluno in [a for a in alunos if a.turma_id == disciplina.turma_id]:
+                nota = Nota(
+                    aluno_id=aluno.id,
+                    avaliacao_id=avaliacao.id,
+                    valor=round(random.uniform(0.0, 10.0), 2)
+                )
+                db.session.add(nota)
+    db.session.commit()
+
+    print('Base de dados populada com sucesso!')

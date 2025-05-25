@@ -1,33 +1,69 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ titulo }}{% endblock %}
+
 {% block content %}
+
 <h2>{{ titulo }}</h2>
+
 <form method="post">
     <div class="mb-3">
-        <label for="nome" class="form-label">Nome</label>
-        <input type="text" name="nome" value="{{ disciplina.nome if disciplina else '' }}" class="form-control" required>
+        <label class="form-label" for="nome">Nome</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="nome" 
+            required 
+            value="{{ disciplina.nome if disciplina else '' }}">
     </div>
+
     <div class="mb-3">
-        <label for="sigla" class="form-label">Sigla</label>
-        <input type="text" name="sigla" value="{{ disciplina.sigla if disciplina else '' }}" class="form-control" required>
+        <label class="form-label" for="sigla">Sigla</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="sigla" 
+            required 
+            value="{{ disciplina.sigla if disciplina else '' }}">
     </div>
+
     <div class="mb-3">
-        <label for="turma_id" class="form-label">Turma</label>
-        <select name="turma_id" class="form-select" required>
+        <label class="form-label" for="turma_id">Turma</label>
+        <select class="form-select" name="turma_id" required>
             {% for turma in turmas %}
-                <option value="{{ turma.id }}" {% if disciplina and disciplina.turma_id == turma.id %}selected{% endif %}>{{ turma.nome }}</option>
+            <option value="{{ turma.id }}" {% if disciplina and disciplina.turma_id == turma.id %}selected{% endif %}>
+                {{ turma.nome }}
+            </option>
             {% endfor %}
         </select>
     </div>
+
     <div class="mb-3">
-        <label for="professor_id" class="form-label">Professor</label>
-        <select name="professor_id" class="form-select" required>
+        <label class="form-label" for="professor_id">Professor</label>
+        <select class="form-select" name="professor_id" required>
             {% for prof in professores %}
-                <option value="{{ prof.id }}" {% if disciplina and disciplina.professor_id == prof.id %}selected{% endif %}>{{ prof.nome }}</option>
+            <option value="{{ prof.id }}" {% if disciplina and disciplina.professor_id == prof.id %}selected{% endif %}>
+                {{ prof.nome }}
+            </option>
             {% endfor %}
         </select>
     </div>
-    <button type="submit" class="btn btn-success">Salvar</button>
-    <a href="{{ url_for('disciplinas.listar') }}" class="btn btn-secondary">Cancelar</a>
+
+    <div class="mb-3">
+        <label class="form-label" for="semestre_letivo_id">Semestre Letivo</label>
+        <select class="form-select" name="semestre_letivo_id" required>
+            {% for semestre in semestres %}
+            <option value="{{ semestre.id }}" {% if disciplina and disciplina.semestre_letivo_id == semestre.id %}selected{% endif %}>
+                {{ semestre.ano }} - {{ semestre.semestre }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{{ url_for('disciplinas.listar') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
 </form>
+
 {% endblock %}

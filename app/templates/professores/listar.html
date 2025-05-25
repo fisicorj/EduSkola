@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
 {% block title %}Professores{% endblock %}
+
 {% block content %}
+
 <h2>Professores</h2>
+
 <a href="{{ url_for('professores.novo') }}" class="btn btn-primary mb-3">Novo Professor</a>
+
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>Nome</th>
-            <th>Email</th>
+            <th>E-mail</th>
             <th>Ações</th>
         </tr>
     </thead>
@@ -21,7 +25,12 @@
                 <a href="{{ url_for('professores.excluir', id=p.id) }}" class="btn btn-sm btn-danger">Excluir</a>
             </td>
         </tr>
+        {% else %}
+        <tr>
+            <td colspan="3">Nenhum professor cadastrado.</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>
+
 {% endblock %}

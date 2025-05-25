@@ -2,22 +2,22 @@
 {% block title %}Importar Dados{% endblock %}
 {% block content %}
 <h2>Importar Dados</h2>
-<form method="post" enctype="multipart/form-data">
-    <div class="mb-3">
-        <label class="form-label">Tipo de dado</label>
-        <select name="tipo" class="form-select" required>
-            <option value="instituicoes">Instituições</option>
-            <option value="cursos">Cursos</option>
-            <option value="turmas">Turmas</option>
-            <option value="alunos">Alunos</option>
-            <option value="professores">Professores</option>
-            <option value="disciplinas">Disciplinas</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Arquivo (.csv ou .xlsx)</label>
-        <input type="file" name="arquivo" class="form-control" accept=".csv,.xlsx" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Importar</button>
+<form enctype="multipart/form-data" method="post">
+<div class="mb-3">
+<label class="form-label">Tipo de dado</label>
+<select class="form-select" name="tipo" required="">
+<option value="instituicoes">Instituições</option>
+<option value="cursos">Cursos</option>
+<option value="turmas">Turmas</option>
+<option value="alunos">Alunos</option>
+<option value="professores">Professores</option>
+<option value="disciplinas">Disciplinas</option>
+</select>
+</div>
+<div class="mb-3">
+<label class="form-label">Arquivo (.csv ou .xlsx)</label>
+<input accept=".csv,.xlsx" class="form-control" name="arquivo" required="" type="file"/>
+</div>
+<button class="btn btn-primary" type="submit">Importar</button>
 </form>
 {% endblock %}

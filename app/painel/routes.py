@@ -1,263 +1,73 @@
 import os
-import pandas as pd
-from flask import Blueprint, request, redirect, url_for, flash, render_template, current_app, send_from_directory
+from flask import Blueprint, request, redirect, url_for, flash, render_template, current_app, send_from_directory, send_file
 from flask_login import login_required, current_user
-from werkzeug.utils import secure_filename
-from datetime import datetime
 from sqlalchemy import func, desc
 from app import db
-from app.models import Importacao, Instituicao, Curso, Turma, Aluno, Professor, Disciplina
+from app.models import Importacao, Instituicao, Curso, Turma, Aluno, Professor, Disciplina, Nota, Avaliacao
+from app.services.importacao_service import ImportacaoService
+from app.services.zip_service import criar_zip_modelos
+
 
 painel_bp = Blueprint('painel', __name__, url_prefix='/painel')
 
-# Constants
-ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
-UPLOAD_FOLDER = 'uploads'
 TEMPLATES_FOLDER = os.path.join('static', 'templates_importacao')
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-def registrar_importacao(tipo, status, detalhes):
-    """Registra uma operação de importação no banco de dados"""
-    try:
-        from app.models import Nota, Avaliacao, Disciplina
-
-        notas_por_aluno = db.session.query(
-            Aluno.nome.label('aluno'),
-            Disciplina.nome.label('disciplina'),
-            Nota.valor.label('valor')
-        ).join(Nota, Nota.aluno_id == Aluno.id)\
-         .join(Avaliacao, Nota.avaliacao_id == Avaliacao.id)\
-         .join(Disciplina, Avaliacao.disciplina_id == Disciplina.id)\
-         .order_by(Aluno.nome).limit(20).all()
-
-        media_por_disciplina = db.session.query(
-            Disciplina.nome.label('disciplina'),
-            func.avg(Nota.valor).label('media')
-        ).join(Avaliacao, Avaliacao.disciplina_id == Disciplina.id)\
-         .join(Nota, Nota.avaliacao_id == Avaliacao.id)\
-         .group_by(Disciplina.id).all()
-    
-        registro = Importacao(
-            tipo=tipo,
-            status=status,
-            detalhes=detalhes,
-            usuario_id=current_user.id,
-            data=datetime.now()
-        )
-        db.session.add(registro)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.error(f"Erro ao registrar importação: {str(e)}")
+ZIP_MODELOS_PATH = os.path.join('static', 'templates_importacao.zip')
 
 @painel_bp.route('/importar', methods=['GET', 'POST'])
 @login_required
 def importar():
-    """Handle file upload and redirect to appropriate import function"""
-    tipos = ['instituicoes', 'cursos', 'turmas', 'alunos', 'professores', 'disciplinas']
-    
+    """Processa a importação e redireciona para o painel."""
+    tipos = ImportacaoService.TIPOS_SUPORTADOS
+
     if request.method == 'POST':
-        # Validate form inputs
         tipo = request.form.get('tipo')
         arquivo = request.files.get('arquivo')
-        
-        if not tipo or tipo not in tipos:
-            flash('Tipo de importação inválido.', 'danger')
-            return redirect(url_for('painel.importar'))
-            
-        if not arquivo or arquivo.filename == '':
-            flash('Nenhum arquivo enviado.', 'danger')
-            return redirect(url_for('painel.importar'))
-            
-        if not allowed_file(arquivo.filename):
-            flash('Tipo de arquivo não permitido. Use CSV ou XLSX.', 'danger')
-            return redirect(url_for('painel.importar'))
 
-        # Save uploaded file
-        nome = secure_filename(arquivo.filename)
-        caminho = os.path.join(UPLOAD_FOLDER, nome)
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        arquivo.save(caminho)
-        
-        return redirect(url_for(f'painel.importar_{tipo}', caminho=caminho))
+        if not tipo or not arquivo:
+            flash('Selecione o tipo e envie um arquivo.', 'danger')
+            return redirect(url_for('painel.painel'))
 
-    return render_template('painel/painel.html')
+        try:
+            ImportacaoService.processar_upload(tipo, arquivo, current_user)
+            flash('Importação realizada com sucesso.', 'success')
+        except Exception as e:
+            flash(f'Erro: {str(e)}', 'danger')
 
-def processar_importacao(caminho, tipo, modelo, campos_obrigatorios, campos_unico=None):
-    """Processa a importação de dados de um arquivo"""
-    try:
-        from app.models import Nota, Avaliacao, Disciplina
-
-        notas_por_aluno = db.session.query(
-            Aluno.nome.label('aluno'),
-            Disciplina.nome.label('disciplina'),
-            Nota.valor.label('valor')
-        ).join(Nota, Nota.aluno_id == Aluno.id)\
-         .join(Avaliacao, Nota.avaliacao_id == Avaliacao.id)\
-         .join(Disciplina, Avaliacao.disciplina_id == Disciplina.id)\
-         .order_by(Aluno.nome).limit(20).all()
-
-        media_por_disciplina = db.session.query(
-            Disciplina.nome.label('disciplina'),
-            func.avg(Nota.valor).label('media')
-        ).join(Avaliacao, Avaliacao.disciplina_id == Disciplina.id)\
-         .join(Nota, Nota.avaliacao_id == Avaliacao.id)\
-         .group_by(Disciplina.id).all()
-    
-        # Read file based on extension
-        if caminho.endswith('.xlsx'):
-            df = pd.read_excel(caminho, dtype=str)
-        else:
-            df = pd.read_csv(caminho, dtype=str)
-            
-        df = df.where(pd.notnull(df), None)
-        inseridos, ignorados, erros = 0, 0, 0
-        
-        for _, row in df.iterrows():
-            try:
-                dados = {}
-                # Validate required fields
-                for campo in campos_obrigatorios:
-                    if campo not in row:
-                        raise ValueError(f"Campo obrigatório '{campo}' não encontrado")
-                    value = str(row[campo]).strip() if row[campo] is not None else ''
-                    if not value:
-                        raise ValueError(f"Campo '{campo}' não pode ser vazio")
-                    dados[campo] = value
-
-                # Check uniqueness constraints
-                if campos_unico:
-                    filtro = {campo: dados[campo] for campo in campos_unico}
-                    if modelo.query.filter_by(**filtro).first():
-                        ignorados += 1
-                        continue
-
-                # Create and add the object
-                db.session.add(modelo(**dados))
-                inseridos += 1
-                
-            except Exception as e:
-                erros += 1
-                current_app.logger.warning(f"Erro ao processar linha {_+1}: {str(e)}")
-                continue
-
-        db.session.commit()
-        mensagem = f"{tipo.capitalize()} importados: {inseridos} | Ignorados: {ignorados} | Erros: {erros}"
-        registrar_importacao(tipo, 'sucesso', mensagem)
-        flash(mensagem, 'success')
-        
-    except Exception as e:
-        db.session.rollback()
-        mensagem = f"Erro ao importar {tipo}: {str(e)}"
-        registrar_importacao(tipo, 'erro', mensagem)
-        flash(mensagem, 'danger')
-        current_app.logger.error(f"Erro na importação de {tipo}: {str(e)}")
-    finally:
-        if os.path.exists(caminho):
-            try:
-                os.remove(caminho)
-            except Exception as e:
-                current_app.logger.error(f"Erro ao remover arquivo {caminho}: {str(e)}")
-
-# Rotas de importação individuais
-@painel_bp.route('/importar/instituicoes')
-@login_required
-def importar_instituicoes():
-    caminho = request.args.get('caminho')
-    processar_importacao(
-        caminho=caminho,
-        tipo='instituicoes',
-        modelo=Instituicao,
-        campos_obrigatorios=['nome', 'sigla', 'cidade', 'tipo', 'media'],
-        campos_unico=['sigla']
-    )
+    # ✅ Sempre redireciona para painel
     return redirect(url_for('painel.painel'))
 
-@painel_bp.route('/importar/cursos')
-@login_required
-def importar_cursos():
-    caminho = request.args.get('caminho')
-    processar_importacao(
-        caminho=caminho,
-        tipo='cursos',
-        modelo=Curso,
-        campos_obrigatorios=['nome', 'sigla', 'instituicao_id'],
-        campos_unico=['sigla', 'instituicao_id']
-    )
-    return redirect(url_for('painel.painel'))
-
-@painel_bp.route('/importar/turmas')
-@login_required
-def importar_turmas():
-    caminho = request.args.get('caminho')
-    processar_importacao(
-        caminho=caminho,
-        tipo='turmas',
-        modelo=Turma,
-        campos_obrigatorios=['nome', 'codigo', 'turno', 'curso_id', 'instituicao_id'],
-        campos_unico=['codigo']
-    )
-    return redirect(url_for('painel.painel'))
-
-@painel_bp.route('/importar/alunos')
-@login_required
-def importar_alunos():
-    caminho = request.args.get('caminho')
-    processar_importacao(
-        caminho=caminho,
-        tipo='alunos',
-        modelo=Aluno,
-        campos_obrigatorios=['nome', 'email', 'matricula', 'turma_id'],
-        campos_unico=['email', 'matricula']
-    )
-    return redirect(url_for('painel.painel'))
-
-@painel_bp.route('/importar/professores')
-@login_required
-def importar_professores():
-    caminho = request.args.get('caminho')
-    processar_importacao(
-        caminho=caminho,
-        tipo='professores',
-        modelo=Professor,
-        campos_obrigatorios=['nome', 'email'],
-        campos_unico=['email']
-    )
-    return redirect(url_for('painel.painel'))
-
-@painel_bp.route('/importar/disciplinas')
-@login_required
-def importar_disciplinas():
-    caminho = request.args.get('caminho')
-    processar_importacao(
-        caminho=caminho,
-        tipo='disciplinas',
-        modelo=Disciplina,
-        campos_obrigatorios=['nome', 'sigla', 'turma_id', 'professor_id'],
-        campos_unico=['sigla', 'turma_id']
-    )
-    return redirect(url_for('painel.painel'))
 
 @painel_bp.route('/template/<nome>')
 @login_required
 def baixar_template(nome):
-    """Serve template files for download"""
+    """Download individual de template"""
     try:
         caminho = os.path.join(current_app.root_path, TEMPLATES_FOLDER)
         return send_from_directory(caminho, nome, as_attachment=True)
     except Exception as e:
         flash(f"Erro ao baixar template: {str(e)}", 'danger')
-        current_app.logger.error(f"Erro ao baixar template {nome}: {str(e)}")
         return redirect(url_for('painel.importar'))
+
+@painel_bp.route('/template/all')
+@login_required
+def baixar_todos_templates():
+    """Download de todos os templates como .zip"""
+    try:
+        zip_path = criar_zip_modelos(
+            pasta_modelos=os.path.join(current_app.root_path, 'static', 'templates_importacao'),
+            nome_zip='templates_importacao.zip'
+        )
+        return send_file(zip_path, as_attachment=True)
+    except Exception as e:
+        flash(f"Erro ao gerar ou baixar pacote: {str(e)}", 'danger')
+        return redirect(url_for('painel.importar'))
+
 
 @painel_bp.route('/')
 @login_required
 def painel():
+    """Dashboard principal"""
     try:
-        from app.models import Nota, Avaliacao
-
         stats = {
             'instituicoes': Instituicao.query.count(),
             'turmas': Turma.query.count(),
@@ -300,7 +110,7 @@ def painel():
 
         historico_importacoes = Importacao.query.order_by(desc(Importacao.data)).limit(5).all()
         ultima_importacao = Importacao.query.order_by(desc(Importacao.data)).first()
-        tipos = ['instituicoes', 'cursos', 'turmas', 'alunos', 'professores', 'disciplinas']
+        tipos = ImportacaoService.TIPOS_SUPORTADOS
 
         return render_template(
             'painel/painel.html',
@@ -320,5 +130,4 @@ def painel():
         )
     except Exception as e:
         flash(f"Erro ao carregar painel: {str(e)}", 'danger')
-        current_app.logger.error(f"Erro no painel: {str(e)}")
         return render_template('painel/painel.html')

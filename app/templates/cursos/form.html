@@ -1,25 +1,47 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ titulo }}{% endblock %}
+
 {% block content %}
+
 <h2>{{ titulo }}</h2>
+
 <form method="post">
     <div class="mb-3">
-        <label for="nome" class="form-label">Nome do Curso</label>
-        <input type="text" name="nome" value="{{ curso.nome if curso else '' }}" class="form-control" required>
+        <label class="form-label" for="nome">Nome do Curso</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="nome" 
+            required 
+            value="{{ curso.nome if curso else '' }}">
     </div>
+
     <div class="mb-3">
-        <label for="sigla" class="form-label">Sigla</label>
-        <input type="text" name="sigla" value="{{ curso.sigla if curso else '' }}" class="form-control" required>
+        <label class="form-label" for="sigla">Sigla</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            name="sigla" 
+            required 
+            value="{{ curso.sigla if curso else '' }}">
     </div>
+
     <div class="mb-3">
-        <label for="instituicao_id" class="form-label">Instituição</label>
-        <select name="instituicao_id" class="form-select" required>
+        <label class="form-label" for="instituicao_id">Instituição</label>
+        <select class="form-select" name="instituicao_id" required>
             {% for inst in instituicoes %}
-                <option value="{{ inst.id }}" {% if curso and curso.instituicao_id == inst.id %}selected{% endif %}>{{ inst.nome }}</option>
+            <option value="{{ inst.id }}" {% if curso and curso.instituicao_id == inst.id %}selected{% endif %}>
+                {{ inst.nome }}
+            </option>
             {% endfor %}
         </select>
     </div>
-    <button type="submit" class="btn btn-success">Salvar</button>
-    <a href="{{ url_for('cursos.listar') }}" class="btn btn-secondary">Cancelar</a>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{{ url_for('cursos.listar') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
 </form>
+
 {% endblock %}
