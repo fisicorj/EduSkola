@@ -28,7 +28,7 @@ class ImportacaoService:
         from app.models import Instituicao, Curso, Turma, Aluno, Professor, Disciplina
 
         config = {
-            'instituicoes': {'modelo': Instituicao, 'campos': ['nome', 'sigla', 'cidade', 'tipo', 'media'], 'unico': ['sigla']},
+            'instituicoes': {'modelo': Instituicao, 'campos': ['nome', 'sigla', 'cidade', 'tipo', 'media_aprovacao'], 'unico': ['sigla']},
             'cursos': {'modelo': Curso, 'campos': ['nome', 'sigla', 'instituicao_id'], 'unico': ['sigla', 'instituicao_id']},
             'turmas': {'modelo': Turma, 'campos': ['nome', 'codigo', 'turno', 'curso_id', 'instituicao_id', 'semestre_letivo_id'], 'unico': ['codigo']},
             'alunos': {'modelo': Aluno, 'campos': ['nome', 'email', 'matricula', 'turma_id', 'semestre_letivo_id'], 'unico': ['email', 'matricula']},

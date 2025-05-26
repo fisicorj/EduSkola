@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Editar Usuário</h2>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" value="{{ usuario.username }}" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Perfil</label>
+        <select name="role" class="form-select" id="roleSelect" required onchange="toggleProfessorFields()">
+            <option value="admin" {% if usuario.role == 'admin' %}selected{% endif %}>Admin</option>
+            <option value="coordenador" {% if usuario.role == 'coordenador' %}selected{% endif %}>Coordenador</option>
+            <option value="professor" {% if usuario.role == 'professor' %}selected{% endif %}>Professor</option>
+        </select>
+    </div>
+
+    <div id="professorFields" style="display: {% if usuario.role == 'professor' %}block{% else %}none{% endif %};">
+        <div class="mb-3">
+            <label class="form-label">Nome do Professor</label>
+            <input type="text" name="nome" class="form-control" 
+                   value="{{ usuario.professor.nome if usuario.professor else '' }}">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">E-mail do Professor</label>
+            <input type="email" name="email" class="form-control" 
+                   value="{{ usuario.professor.email if usuario.professor else '' }}">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Avatar</label>
+        {% if usuario.avatar %}
+            <div>
+                <img src="{{ url_for('static', filename='uploads/' ~ usuario.avatar) }}" 
+                     style="width:80px; height:80px; border-radius:50%;" 
+                     alt="Avatar Atual">
+            </div>
+        {% endif %}
+        <input type="file" name="avatar" class="form-control mt-2">
+    </div>
+
+    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+    <a href="{{ url_for('admin.listar_usuarios') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script>
+function toggleProfessorFields() {
+    const role = document.getElementById('roleSelect').value;
+    const professorFields = document.getElementById('professorFields');
+    professorFields.style.display = role === 'professor' ? 'block' : 'none';
+}
+</script>
+{% endblock %}
+
+

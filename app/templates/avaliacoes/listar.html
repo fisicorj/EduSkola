@@ -1,24 +1,26 @@
 {% extends 'base.html' %}
-{% block title %}Avaliações{% endblock %}
-{% block content %}
 
+{% block title %}Avaliações{% endblock %}
+
+{% block content %}
 <h2>Avaliações Cadastradas</h2>
+
 <a class="btn btn-primary mb-3" href="{{ url_for('avaliacoes.nova') }}">Nova Avaliação</a>
 
 <form class="mb-3 row" method="get">
-    <div class="col-md-3">
-        <label class="form-label">Turma</label>
-        <select class="form-select" name="turma_id" onchange="this.form.submit()">
+    <div class="col-md-4">
+        <label class="form-label">Disciplina{% if current_user.role == 'professor' %} (suas disciplinas){% endif %}</label>
+        <select class="form-select" name="disciplina_id" onchange="this.form.submit()">
             <option value="">Todas</option>
-            {% for turma in turmas %}
-            <option value="{{ turma.id }}" {% if turma_id == turma.id %}selected{% endif %}>
-                {{ turma.nome }}
+            {% for disciplina in disciplinas %}
+            <option value="{{ disciplina.id }}" {% if disciplina_id == disciplina.id %}selected{% endif %}>
+                {{ disciplina.nome }}
             </option>
             {% endfor %}
         </select>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
         <label class="form-label">Semestre</label>
         <select class="form-select" name="semestre_id" onchange="this.form.submit()">
             <option value="">Todos</option>
@@ -29,25 +31,13 @@
             {% endfor %}
         </select>
     </div>
-
-    <div class="col-md-3">
-        <label class="form-label">Disciplina</label>
-        <select class="form-select" name="disciplina_id" onchange="this.form.submit()">
-            <option value="">Todas</option>
-            {% for disciplina in disciplinas %}
-            <option value="{{ disciplina.id }}" {% if disciplina_id == disciplina.id %}selected{% endif %}>
-                {{ disciplina.nome }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
 </form>
 
-<table class="table table-bordered">
-    <thead>
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
         <tr>
-            <th>Turma</th>
             <th>Disciplina</th>
+            <th>Turma</th>
             <th>Avaliação</th>
             <th>Peso</th>
             <th>Semestre</th>
@@ -57,23 +47,27 @@
     <tbody>
         {% for a in avaliacoes %}
         <tr>
-            <td>{{ a.turma.nome }}</td>
             <td>{{ a.disciplina.nome }}</td>
+            <td>{{ a.turma.nome }}</td>
             <td>{{ a.nome }}</td>
             <td>{{ "%.2f"|format(a.peso) }}</td>
             <td>{{ a.semestre_letivo.ano }}/{{ a.semestre_letivo.semestre }}</td>
             <td>
-                <a class="btn btn-sm btn-danger" href="{{ url_for('avaliacoes.excluir', id=a.id) }}">
+                <a class="btn btn-sm btn-warning" href="{{ url_for('avaliacoes.editar', id=a.id) }}">Editar</a>
+                <a class="btn btn-sm btn-danger" 
+                   href="{{ url_for('avaliacoes.excluir', id=a.id) }}"
+                   onclick="return confirm('Tem certeza que deseja excluir esta avaliação?');">
                     Excluir
                 </a>
             </td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="6">Nenhuma avaliação encontrada com os filtros aplicados.</td>
+            <td colspan="6" class="text-center text-muted">
+                Nenhuma avaliação encontrada com os filtros aplicados.
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-
 {% endblock %}

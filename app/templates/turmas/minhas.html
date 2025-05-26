@@ -1,0 +1,6 @@
+<h2>Minhas Turmas</h2>
+<ul>
+    {% for t in turmas %}
+    <li>{{ t.nome }} - Curso: {{ t.curso.nome }}</li>
+    {% endfor %}
+</ul>

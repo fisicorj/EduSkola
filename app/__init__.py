@@ -1,31 +1,33 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from werkzeug.security import generate_password_hash
+from app.extensions import db, login_manager, migrate
 from flask_migrate import Migrate
+from flask_migrate import Migrate
+from app.config import DevelopmentConfig  # ou ProductionConfig
 
-db = SQLAlchemy()
-login_manager = LoginManager()
-
-def create_app():
+def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'secretkey'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-
-   # dentro da função create_app()
-    migrate = Migrate(app, db)
+    app.config.from_object(config_class)
 
     db.init_app(app)
+    migrate.init_app(app, db)
     login_manager.init_app(app)
+
     login_manager.login_view = 'auth.login'
 
-    from app.models import User
-    with app.app_context():
-        db.create_all()
-        if not User.query.filter_by(username='admin').first():
-            user = User(username='admin', password=generate_password_hash('admin123'))
-            db.session.add(user)
-            db.session.commit()
+    """with app.app_context():  #somente durante desenvolvimento.
+        try:
+            db.create_all()
+            if not User.query.filter_by(username='admin').first():
+                user = User(username='admin', password=generate_password_hash('admin123'))
+                db.session.add(user)
+                db.session.commit()
+                print("✅ Usuário admin criado.")
+            else:
+                print("✅ Usuário admin já existe.")
+        except Exception as e:
+            print(f"⚠️ Erro ao criar tabelas ou admin: {e}")"""
 
     from app.auth.routes import auth_bp
     from app.painel.routes import painel_bp
@@ -38,8 +40,8 @@ def create_app():
     from app.avaliacoes.routes import avaliacoes_bp
     from app.notas.routes import notas_bp
     from app.semestres.routes import semestres_bp
+    from app.admin.routes import admin_bp
 
-    
     app.register_blueprint(auth_bp)
     app.register_blueprint(painel_bp)
     app.register_blueprint(inst_bp)
@@ -51,6 +53,6 @@ def create_app():
     app.register_blueprint(avaliacoes_bp)
     app.register_blueprint(notas_bp)
     app.register_blueprint(semestres_bp)
-
+    app.register_blueprint(admin_bp)
 
     return app

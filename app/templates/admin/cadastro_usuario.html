@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Cadastro de Usuário{% endblock %}
+
+{% block content %}
+<h2>Cadastro de Usuário</h2>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label for="username">Usuário:</label>
+        <input type="text" name="username" class="form-control" required>
+    </div>
+    
+    <div class="mb-3">
+        <label for="password">Senha:</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="role">Perfil:</label>
+        <select name="role" class="form-select" id="roleSelect" required onchange="toggleProfessorFields()">
+            <option value="admin">Admin</option>
+            <option value="coordenador">Coordenador</option>
+            <option value="professor">Professor</option>
+        </select>
+    </div>
+
+    <div id="professorFields" style="display: none;">
+        <div class="mb-3">
+            <label for="nome">Nome do Professor:</label>
+            <input type="text" name="nome" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="email">E-mail do Professor:</label>
+            <input type="email" name="email" class="form-control">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="avatar">Avatar:</label>
+        <input type="file" name="avatar" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cadastrar</button>
+    <a href="{{ url_for('admin.listar_usuarios') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script>
+function toggleProfessorFields() {
+    const role = document.getElementById('roleSelect').value;
+    const professorFields = document.getElementById('professorFields');
+    professorFields.style.display = role === 'professor' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

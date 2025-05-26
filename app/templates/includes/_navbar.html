@@ -4,11 +4,13 @@
         <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav" type="button">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <!-- Administração -->
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Administração</a>
+                    <a class="nav-link dropdown-toggle {% if request.endpoint in ['instituicoes.listar', 'cursos.listar', 'semestres.listar'] %}active{% endif %}" 
+                       data-bs-toggle="dropdown" href="#">Administração</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ url_for('instituicoes.listar') }}">Instituições</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('cursos.listar') }}">Cursos</a></li>
@@ -16,9 +18,21 @@
                     </ul>
                 </li>
 
-                <!-- Acadêmico -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Acadêmico</a>
+                    <a class="nav-link dropdown-toggle {% if request.endpoint == 'auth.cadastro' %}active{% endif %}" 
+                       data-bs-toggle="dropdown" href="#">Usuários</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('admin.cadastro_usuario') }}">Cadastrar Usuário</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('admin.listar_usuarios') }}">Listar Usuários</a></li>
+                        <!-- <li><a class="dropdown-item" href="#">Listar Usuários</a></li> -->
+                    </ul>
+                </li>
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.role in ['admin', 'coordenador'] %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.endpoint in ['turmas.listar', 'alunos.listar', 'professores.listar'] %}active{% endif %}"
+                       data-bs-toggle="dropdown" href="#">Acadêmico</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ url_for('turmas.listar') }}">Turmas</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('alunos.listar') }}">Alunos</a></li>
@@ -27,27 +41,53 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('disciplinas.listar') }}">Disciplinas</a>
+                    <a class="nav-link {% if request.endpoint == 'disciplinas.listar' %}active{% endif %}"
+                       href="{{ url_for('disciplinas.listar') }}">Disciplinas</a>
                 </li>
+                {% endif %}
 
+                {% if current_user.is_authenticated and current_user.role == 'professor' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('disciplinas.minhas_disciplinas') }}">Minhas Disciplinas</a>
+                </li>
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.role in ['admin', 'coordenador', 'professor'] %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Avaliações e Notas</a>
+                    <a class="nav-link dropdown-toggle {% if request.endpoint in ['avaliacoes.listar', 'notas.selecionar_lancamento', 'notas.selecionar_resultado'] %}active{% endif %}"
+                       data-bs-toggle="dropdown" href="#">Avaliações e Notas</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ url_for('avaliacoes.listar') }}">Avaliações</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('notas.selecionar_lancamento') }}">Lançar Notas</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('notas.selecionar_resultado') }}">Resultados</a></li>
                     </ul>
                 </li>
+                {% endif %}
 
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('painel.importar') }}">Importar Dados</a>
+                    <a class="nav-link {% if request.endpoint == 'painel.importar' %}active{% endif %}"
+                       href="{{ url_for('painel.importar') }}">Importar Dados</a>
                 </li>
+                {% endif %}
             </ul>
 
             <ul class="navbar-nav">
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <span class="navbar-text text-white me-2">
+                        {{ current_user.username }} ({{ current_user.role }})
+                    </span>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">Sair</a>
                 </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'auth.login' %}active{% endif %}" 
+                       href="{{ url_for('auth.login') }}">Login</a>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </div>

@@ -24,6 +24,7 @@
             class="form-control" 
             name="peso" 
             required 
+            min="0" 
             step="0.01" 
             value="{{ avaliacao.peso if avaliacao else '' }}">
     </div>
@@ -32,8 +33,9 @@
         <label class="form-label">Turma</label>
         <select class="form-select" name="turma_id" required>
             {% for turma in turmas %}
-            <option value="{{ turma.id }}" {% if avaliacao and avaliacao.turma_id == turma.id %}selected{% endif %}>
-                {{ turma.nome }}
+            <option value="{{ turma.id }}" 
+                {% if avaliacao and avaliacao.turma_id == turma.id %}selected{% endif %}>
+                {{ turma.nome }} - {{ turma.semestre_letivo.ano }}/{{ turma.semestre_letivo.semestre }}
             </option>
             {% endfor %}
         </select>
@@ -43,7 +45,8 @@
         <label class="form-label">Disciplina</label>
         <select class="form-select" name="disciplina_id" required>
             {% for disciplina in disciplinas %}
-            <option value="{{ disciplina.id }}" {% if avaliacao and avaliacao.disciplina_id == disciplina.id %}selected{% endif %}>
+            <option value="{{ disciplina.id }}"
+                {% if avaliacao and avaliacao.disciplina_id == disciplina.id %}selected{% endif %}>
                 {{ disciplina.nome }}
             </option>
             {% endfor %}
@@ -54,7 +57,8 @@
         <label class="form-label">Semestre Letivo</label>
         <select class="form-select" name="semestre_letivo_id" required>
             {% for semestre in semestres %}
-            <option value="{{ semestre.id }}" {% if avaliacao and avaliacao.semestre_letivo_id == semestre.id %}selected{% endif %}>
+            <option value="{{ semestre.id }}"
+                {% if avaliacao and avaliacao.semestre_letivo_id == semestre.id %}selected{% endif %}>
                 {{ semestre.ano }} - {{ semestre.semestre }}
             </option>
             {% endfor %}

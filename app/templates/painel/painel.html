@@ -6,43 +6,25 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="row g-4">
+    {% for stat, label, color, desc in [
+        (stats.instituicoes, 'Instituições', 'primary', 'Total importado'),
+        (stats.turmas, 'Turmas', 'success', 'Criadas no sistema'),
+        (ultima_importacao.data if ultima_importacao else '---', 'Última Importação', 'info', 'Tipo: ' ~ (ultima_importacao.tipo if ultima_importacao else '---')),
+        ('Notas', 'Lançamento de Notas', 'secondary', 'Registrar notas dos alunos')
+    ] %}
     <div class="col-md-3">
-        <div class="card text-white bg-primary">
-            <div class="card-header">Instituições</div>
+        <div class="card text-white bg-{{ color }}">
+            <div class="card-header">{{ label }}</div>
             <div class="card-body">
-                <h5 class="card-title">{{ stats.instituicoes }}</h5>
-                <p class="card-text">Total importado</p>
+                <h5 class="card-title">{{ stat }}</h5>
+                <p class="card-text">{{ desc }}</p>
+                {% if label == 'Lançamento de Notas' %}
+                <a class="btn btn-dark btn-sm w-100 mt-2" href="{{ url_for('notas.selecionar_lancamento') }}">Lançar Notas</a>
+                {% endif %}
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-header">Turmas</div>
-            <div class="card-body">
-                <h5 class="card-title">{{ stats.turmas }}</h5>
-                <p class="card-text">Criadas no sistema</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-header">Última Importação</div>
-            <div class="card-body">
-                <h5 class="card-title">{{ ultima_importacao.data if ultima_importacao else '---' }}</h5>
-                <p class="card-text">Tipo: {{ ultima_importacao.tipo if ultima_importacao else '---' }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-secondary text-white">
-            <div class="card-header">Lançamento de Notas</div>
-            <div class="card-body">
-                <h5 class="card-title">Notas</h5>
-                <p class="card-text">Registrar notas dos alunos</p>
-                <a class="btn btn-dark btn-sm w-100" href="{{ url_for('notas.selecionar_lancamento') }}">Lançar Notas</a>
-            </div>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 
 <div class="card my-4">
@@ -174,7 +156,7 @@
     </div>
 
     <div class="col-md-6">
-        <h5>Notas por Disciplina</h5>
+        <h5>Média por Disciplina</h5>
         <table class="table table-sm table-bordered">
             <thead>
                 <tr>
@@ -186,7 +168,7 @@
                 {% for item in media_por_disciplina %}
                 <tr>
                     <td>{{ item.disciplina }}</td>
-                    <td>{{ item.media }}</td>
+                    <td>{{ "%.2f"|format(item.media) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -199,10 +181,10 @@
     new Chart(ctxTurmas, {
         type: 'bar',
         data: {
-            labels: {{ labels_turma|safe }},
+            labels: {{ labels_turma | tojson }},
             datasets: [{
                 label: 'Alunos por Turma',
-                data: {{ valores_turma|safe }},
+                data: {{ valores_turma | tojson }},
                 backgroundColor: 'rgba(54, 162, 235, 0.7)'
             }]
         }
@@ -212,10 +194,10 @@
     new Chart(ctxProfessores, {
         type: 'bar',
         data: {
-            labels: {{ labels_prof|safe }},
+            labels: {{ labels_prof | tojson }},
             datasets: [{
                 label: 'Disciplinas por Professor',
-                data: {{ valores_prof|safe }},
+                data: {{ valores_prof | tojson }},
                 backgroundColor: 'rgba(255, 99, 132, 0.7)'
             }]
         }

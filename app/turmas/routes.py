@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
+from app.auth.decorators import role_required
 from app import db
 from app.models import Turma, Instituicao, Curso, SemestreLetivo
 
@@ -82,6 +83,14 @@ def editar(id):
         return redirect(url_for('turmas.listar'))
 
     return render_template('turmas/form.html', turma=turma, cursos=cursos, instituicoes=instituicoes, semestres=semestres)
+
+@turmas_bp.route('/minhas')
+@login_required
+@role_required('professor')
+def minhas_turmas():
+    disciplinas = Disciplina.query.filter_by(professor_id=current_user.id).all()
+    turmas = list({disciplina.turma for disciplina in disciplinas})  # Set para evitar repetição
+    return render_template('turmas/minhas.html', turmas=turmas)
 
 
 @turmas_bp.route('/excluir/<int:id>')

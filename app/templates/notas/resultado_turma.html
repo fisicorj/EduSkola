@@ -6,50 +6,57 @@
 
 <h2>Resultado Completo - Turma: {{ turma.nome }}</h2>
 
-{% for disciplina, resultados in agrupado.items() %}
-    <h3 class="mt-4">Disciplina: {{ disciplina.nome }}</h3>
+{% if agrupado %}
+    {% for disciplina, resultados in agrupado.items() %}
+        <h3 class="mt-4">Disciplina: {{ disciplina.nome }}</h3>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Aluno</th>
-                {% for avaliacao in resultados[0].avaliacoes %}
-                    <th>{{ avaliacao.nome }}</th>
+        {% if resultados and resultados[0].avaliacoes %}
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Aluno</th>
+                    {% for avaliacao in resultados[0].avaliacoes %}
+                        <th>{{ avaliacao.nome }}</th>
+                    {% endfor %}
+                    <th>Média</th>
+                    <th>Situação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in resultados %}
+                <tr>
+                    <td>{{ r.aluno.nome }}</td>
+                    {% for nota in r.notas %}
+                        <td>{{ nota if nota is not none else '-' }}</td>
+                    {% endfor %}
+                    <td>
+                        {% if r.media is not none %}
+                            {{ "%.2f"|format(r.media) }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if r.situacao == 'Aprovado' %}
+                            <span class="badge bg-success">{{ r.situacao }}</span>
+                        {% elif r.situacao == 'Reprovado' %}
+                            <span class="badge bg-danger">{{ r.situacao }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ r.situacao }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
                 {% endfor %}
-                <th>Média</th>
-                <th>Situação</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in resultados %}
-            <tr>
-                <td>{{ r.aluno.nome }}</td>
-                {% for nota in r.notas %}
-                    <td>{{ nota if nota is not none else '-' }}</td>
-                {% endfor %}
-                <td>
-                    {% if r.media is not none %}
-                        {{ "%.2f"|format(r.media) }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td>
-                    {% if r.situacao == 'Aprovado' %}
-                        <span class="badge bg-success">{{ r.situacao }}</span>
-                    {% elif r.situacao == 'Reprovado' %}
-                        <span class="badge bg-danger">{{ r.situacao }}</span>
-                    {% else %}
-                        <span class="badge bg-secondary">{{ r.situacao }}</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <div class="alert alert-warning">Nenhuma avaliação cadastrada para esta disciplina.</div>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info">Nenhuma disciplina com avaliações cadastradas para esta turma.</div>
+{% endif %}
 
 <a href="{{ url_for('notas.selecionar_resultado') }}" class="btn btn-secondary mt-3">Voltar</a>
 
 {% endblock %}
-

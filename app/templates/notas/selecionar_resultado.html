@@ -5,59 +5,65 @@
 
 <h2>Selecionar Resultado</h2>
 
-<form class="mb-3" method="get">
-    <label for="semestre_id">Filtrar por Semestre:</label>
-    <select class="form-select" name="semestre_id" onchange="this.form.submit()">
-        <option value="">Todos</option>
-        {% for semestre in semestres %}
-        <option value="{{ semestre.id }}" {% if semestre_id == semestre.id %}selected{% endif %}>
-            {{ semestre.ano }} - {{ semestre.semestre }}
-        </option>
-        {% endfor %}
-    </select>
-</form>
+<div class="card mb-4">
+    <div class="card-body">
+        <form class="mb-3" method="get">
+            <label for="semestre_id" class="form-label">Filtrar por Semestre:</label>
+            <select class="form-select" name="semestre_id" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                {% for semestre in semestres %}
+                <option value="{{ semestre.id }}" {% if semestre_id == semestre.id %}selected{% endif %}>
+                    {{ semestre.ano }} - {{ semestre.semestre }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
 
-<form class="mb-4" method="post">
-    <div class="mb-3">
-        <label for="turma_id">Turma:</label>
-        <select class="form-select" name="turma_id" required>
-            {% for turma in turmas %}
-            <option value="{{ turma.id }}">
-                {{ turma.nome }} - {{ turma.semestre_letivo.ano }}/{{ turma.semestre_letivo.semestre }}
-            </option>
-            {% endfor %}
-        </select>
+        <form class="mb-0" method="post">
+            <div class="mb-3">
+                <label for="turma_id" class="form-label">Turma:</label>
+                <select class="form-select" name="turma_id" required>
+                    {% for turma in turmas %}
+                    <option value="{{ turma.id }}">
+                        {{ turma.nome }} - {{ turma.semestre_letivo.ano }}/{{ turma.semestre_letivo.semestre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="disciplina_id" class="form-label">Disciplina:</label>
+                <select class="form-select" name="disciplina_id" required>
+                    <option value="">Selecione uma Disciplina</option>
+                    {% for disciplina in disciplinas %}
+                    <option value="{{ disciplina.id }}">{{ disciplina.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Ver Resultado</button>
+        </form>
     </div>
-
-    <div class="mb-3">
-        <label for="disciplina_id">Disciplina:</label>
-        <select class="form-select" name="disciplina_id">
-            <option value="">Todas as Disciplinas</option>
-            {% for disciplina in disciplinas %}
-            <option value="{{ disciplina.id }}">{{ disciplina.nome }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <button class="btn btn-primary" type="submit">Ver Resultado</button>
-</form>
-
-<hr/>
-
-<h4>Ou visualizar todas as disciplinas da turma diretamente:</h4>
-
-<div class="mb-3">
-    <label for="turma_resultado">Turma:</label>
-    <select class="form-select" id="turma_resultado" required>
-        {% for turma in turmas %}
-        <option value="{{ turma.id }}">
-            {{ turma.nome }} - {{ turma.semestre_letivo.ano }}/{{ turma.semestre_letivo.semestre }}
-        </option>
-        {% endfor %}
-    </select>
 </div>
 
-<button class="btn btn-success" onclick="verResultadoTurma()" type="button">Ver Resultado Completo da Turma</button>
+<div class="card">
+    <div class="card-body">
+        <h4>Ou visualizar todas as disciplinas da turma:</h4>
+        <div class="mb-3">
+            <label for="turma_resultado" class="form-label">Turma:</label>
+            <select class="form-select" id="turma_resultado" required>
+                {% for turma in turmas %}
+                <option value="{{ turma.id }}">
+                    {{ turma.nome }} - {{ turma.semestre_letivo.ano }}/{{ turma.semestre_letivo.semestre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-success" onclick="verResultadoTurma()" type="button">
+            Ver Resultado Completo da Turma
+        </button>
+    </div>
+</div>
 
 <script>
 function verResultadoTurma() {
@@ -70,3 +76,4 @@ function verResultadoTurma() {
 </script>
 
 {% endblock %}
+

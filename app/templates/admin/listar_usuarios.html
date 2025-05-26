@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Usuários</h2>
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-3">
+        <input type="text" name="busca" value="{{ busca or '' }}" placeholder="Buscar por nome..." class="form-control">
+    </div>
+    <div class="col-md-3">
+        <select name="perfil" class="form-select">
+            <option value="">Todos os Perfis</option>
+            <option value="admin" {% if perfil == 'admin' %}selected{% endif %}>Admin</option>
+            <option value="coordenador" {% if perfil == 'coordenador' %}selected{% endif %}>Coordenador</option>
+            <option value="professor" {% if perfil == 'professor' %}selected{% endif %}>Professor</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button class="btn btn-primary">Filtrar</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Avatar</th>
+            <th>Username</th>
+            <th>Perfil</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in usuarios %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>
+                {% if user.avatar %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ user.avatar) }}" alt="Avatar" width="50" height="50" class="rounded-circle">
+                {% else %}
+                    <span class="text-muted">Sem avatar</span>
+                {% endif %}
+            </td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+                <a href="{{ url_for('admin.editar_usuario', user_id=user.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                <a href="{{ url_for('admin.trocar_senha', user_id=user.id) }}" class="btn btn-sm btn-info">Trocar Senha</a>
+                <form action="{{ url_for('admin.excluir_usuario', user_id=user.id) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza?');">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Paginação -->
+<nav aria-label="Navegação de página">
+    <ul class="pagination">
+        {% if pagination.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.listar_usuarios', page=pagination.prev_num, perfil=perfil, busca=busca) }}">Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+        {% endif %}
+
+        {% for p in pagination.iter_pages() %}
+            {% if p %}
+                {% if p == pagination.page %}
+                    <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.listar_usuarios', page=p, perfil=perfil, busca=busca) }}">{{ p }}</a>
+                    </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('admin.listar_usuarios', page=pagination.next_num, perfil=perfil, busca=busca) }}">Próxima</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}

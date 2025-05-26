@@ -5,32 +5,85 @@
 
 <h2>Professores</h2>
 
-<a href="{{ url_for('professores.novo') }}" class="btn btn-primary mb-3">Novo Professor</a>
-
-<table class="table table-bordered">
+<table class="table table-striped">
     <thead>
         <tr>
+            <th>Avatar</th>
             <th>Nome</th>
             <th>E-mail</th>
-            <th>Ações</th>
+            <th>Usuário</th>
         </tr>
     </thead>
     <tbody>
-        {% for p in professores %}
+        {% for prof in professores %}
         <tr>
-            <td>{{ p.nome }}</td>
-            <td>{{ p.email }}</td>
             <td>
-                <a href="{{ url_for('professores.editar', id=p.id) }}" class="btn btn-sm btn-warning">Editar</a>
-                <a href="{{ url_for('professores.excluir', id=p.id) }}" class="btn btn-sm btn-danger">Excluir</a>
+                {% if prof.user and prof.user.avatar %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ prof.user.avatar) }}" 
+                         alt="Avatar" 
+                         width="50" 
+                         height="50" 
+                         class="rounded-circle">
+                {% else %}
+                    <span class="text-muted">Sem avatar</span>
+                {% endif %}
             </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="3">Nenhum professor cadastrado.</td>
+            <td>{{ prof.nome }}</td>
+            <td>{{ prof.email }}</td>
+            <td>
+                {% if prof.user %}
+                    {{ prof.user.username }} ({{ prof.user.role }})
+                {% else %}
+                    <em>Não associado</em>
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
+<nav aria-label="Navegação de página">
+    <ul class="pagination">
+        {% if pagination.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ pagination.prev_num }}">Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Anterior</span>
+        </li>
+        {% endif %}
+
+        {% for p in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+            {% if p %}
+                {% if p == pagination.page %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ p }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+                    </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ pagination.next_num }}">Próxima</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Próxima</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
 {% endblock %}
+
+
+
+

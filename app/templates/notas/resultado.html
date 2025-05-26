@@ -6,11 +6,14 @@
 
 <h2>Resultado - Turma: {{ turma.nome }} - Disciplina: {{ disciplina.nome }}</h2>
 
-<table class="table table-bordered">
-    <thead>
+{% if resultados %}
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
         <tr>
             <th>Aluno</th>
-            <th>Notas</th>
+            {% for avaliacao in avaliacoes %}
+                <th>{{ avaliacao.nome }}</th>
+            {% endfor %}
             <th>Média</th>
             <th>Situação</th>
         </tr>
@@ -19,11 +22,15 @@
         {% for resultado in resultados %}
         <tr>
             <td>{{ resultado.aluno.nome }}</td>
-            <td>
-                {% for n in resultado.notas %}
-                    {{ "%.2f"|format(n) if n is not none else '---' }}{% if not loop.last %}, {% endif %}
-                {% endfor %}
-            </td>
+            {% for nota in resultado.notas %}
+                <td>
+                    {% if nota is not none %}
+                        {{ "%.2f"|format(nota) }}
+                    {% else %}
+                        ---
+                    {% endif %}
+                </td>
+            {% endfor %}
             <td>
                 {% if resultado.media is not none %}
                     {{ "%.2f"|format(resultado.media) }}
@@ -48,6 +55,9 @@
         {% endfor %}
     </tbody>
 </table>
+{% else %}
+<div class="alert alert-info">Nenhum resultado encontrado para esta disciplina.</div>
+{% endif %}
 
 <a href="{{ url_for('notas.selecionar_resultado') }}" class="btn btn-secondary mt-3">Voltar</a>
 
