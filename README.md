@@ -1,7 +1,7 @@
 
-# 🎓 Skola2 - Sistema de Gestão Acadêmica
+# 🎓 EduSkola - Sistema de Gestão Acadêmica
 
-Skola2 é uma aplicação web desenvolvida em Python com o framework Flask, destinada à gestão acadêmica. Permite o gerenciamento eficiente de instituições, turmas, disciplinas, alunos, professores, avaliações e notas, através de uma interface web intuitiva.
+EduSkola é uma aplicação web desenvolvida em Python com o framework Flask, destinada à gestão acadêmica. Permite o gerenciamento eficiente de instituições, turmas, disciplinas, alunos, professores, avaliações e notas, através de uma interface web intuitiva.
 
 ## ✅ Funcionalidades
 
