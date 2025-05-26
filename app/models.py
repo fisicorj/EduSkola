@@ -14,8 +14,6 @@ class DisciplinaTurmaProfessor(db.Model):
     turma = db.relationship('Turma', backref='associacoes')
     professor = db.relationship('Professor', backref='associacoes')
 
-# Modelos
-
 # Modelos principais
 
 class User(UserMixin, db.Model):
@@ -53,23 +51,21 @@ class Turma(db.Model):
     semestre_letivo_id = db.Column(db.Integer, db.ForeignKey('semestre_letivo.id'), nullable=False)
     alunos = db.relationship('Aluno', backref='turma', lazy=True)
     avaliacoes = db.relationship('Avaliacao', backref='turma', lazy=True)
-    # Acesso às disciplinas via associacoes
 
 class Professor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    # Acesso às disciplinas via associacoes
-
+    
+   
 class Disciplina(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     sigla = db.Column(db.String(10), nullable=False)
     semestre_letivo_id = db.Column(db.Integer, db.ForeignKey('semestre_letivo.id'), nullable=False)
     avaliacoes = db.relationship('Avaliacao', backref='disciplina', lazy=True)
-    # Acesso a turmas e professores via associacoes
-
+   
 class Aluno(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)

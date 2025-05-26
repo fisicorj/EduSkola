@@ -1,15 +1,16 @@
 from app import create_app, db
-from app.models import Instituicao, Curso, Turma, Aluno, Professor, Disciplina, Avaliacao, Nota, SemestreLetivo
+from app.models import Instituicao, Curso, Turma, Aluno, Professor, Disciplina, Avaliacao, Nota, SemestreLetivo, DisciplinaTurmaProfessor
 from datetime import date
 import random
 
 app = create_app()
 
 with app.app_context():
-    # ⚠️ Limpeza das tabelas (cuidado com produção!)
+    # ⚠️ Limpeza das tabelas (em ambiente de desenvolvimento)
     db.session.query(Nota).delete()
     db.session.query(Avaliacao).delete()
     db.session.query(Aluno).delete()
+    db.session.query(DisciplinaTurmaProfessor).delete()
     db.session.query(Disciplina).delete()
     db.session.query(Turma).delete()
     db.session.query(Curso).delete()
@@ -52,8 +53,8 @@ with app.app_context():
     turmas = []
     for i, sem in enumerate(semestres):
         turma = Turma(
-            nome=f'Turma {chr(65+i)}',
-            codigo=f'TURMA{chr(65+i)}',
+            nome=f'Turma {chr(65 + i)}',
+            codigo=f'TURMA{chr(65 + i)}',
             turno=random.choice(['Manhã', 'Tarde', 'Noite']),
             curso_id=curso1.id if i % 2 == 0 else curso2.id,
             instituicao_id=curso1.instituicao_id if i % 2 == 0 else curso2.instituicao_id,
@@ -65,18 +66,26 @@ with app.app_context():
 
     # ✅ Criar Disciplinas
     disciplinas = []
-    for turma in turmas:
-        prof = random.choice(professores)
-        for d in ['Algoritmos', 'Matemática', 'Gestão']:
-            disc = Disciplina(
-                nome=f'{d} - {turma.nome}',
-                sigla=d[:3].upper(),
+    for nome_disciplina in ['Algoritmos', 'Matemática', 'Gestão']:
+        disciplina = Disciplina(
+            nome=nome_disciplina,
+            sigla=nome_disciplina[:3].upper(),
+            semestre_letivo_id=random.choice(semestres).id
+        )
+        db.session.add(disciplina)
+        disciplinas.append(disciplina)
+    db.session.commit()
+
+    # ✅ Criar associações Disciplina - Turma - Professor
+    for disciplina in disciplinas:
+        for turma in random.sample(turmas, k=random.randint(1, len(turmas))):
+            prof = random.choice(professores)
+            assoc = DisciplinaTurmaProfessor(
+                disciplina_id=disciplina.id,
                 turma_id=turma.id,
-                professor_id=prof.id,
-                semestre_letivo_id=turma.semestre_letivo_id
+                professor_id=prof.id
             )
-            disciplinas.append(disc)
-    db.session.add_all(disciplinas)
+            db.session.add(assoc)
     db.session.commit()
 
     # ✅ Criar Alunos
@@ -94,19 +103,19 @@ with app.app_context():
 
     # ✅ Criar Avaliações e Notas
     alunos = Aluno.query.all()
-    for disciplina in disciplinas:
+    for assoc in DisciplinaTurmaProfessor.query.all():
         for i in range(1, 4):  # P1, P2, P3
             avaliacao = Avaliacao(
                 nome=f'P{i}',
                 peso=0.3,
-                turma_id=disciplina.turma_id,
-                disciplina_id=disciplina.id,
-                semestre_letivo_id=disciplina.semestre_letivo_id
+                turma_id=assoc.turma_id,
+                disciplina_id=assoc.disciplina_id,
+                semestre_letivo_id=assoc.turma.semestre_letivo_id
             )
             db.session.add(avaliacao)
             db.session.commit()
 
-            for aluno in [a for a in alunos if a.turma_id == disciplina.turma_id]:
+            for aluno in [a for a in alunos if a.turma_id == assoc.turma_id]:
                 nota = Nota(
                     aluno_id=aluno.id,
                     avaliacao_id=avaliacao.id,
@@ -115,4 +124,4 @@ with app.app_context():
                 db.session.add(nota)
     db.session.commit()
 
-    print('Base de dados populada com sucesso!')
+    print('✅ Base de dados populada com sucesso!')
