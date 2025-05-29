@@ -46,9 +46,21 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card mb-4">
     <div class="card-body">
-        <h4>Ou visualizar todas as disciplinas da turma:</h4>
+        <h4>Buscar resultado de um aluno:</h4>
+        <form method="post" action="{{ url_for('notas.resultado_aluno') }}">
+            <div class="input-group">
+                <input type="text" name="nome_aluno" class="form-control" placeholder="Digite o nome do aluno" required>
+                <button type="submit" class="btn btn-info">Buscar Notas</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h4>Visualizar todas as disciplinas da turma:</h4>
         <div class="mb-3">
             <label for="turma_resultado" class="form-label">Turma:</label>
             <select class="form-select" id="turma_resultado" required>
@@ -76,4 +88,3 @@ function verResultadoTurma() {
 </script>
 
 {% endblock %}
-

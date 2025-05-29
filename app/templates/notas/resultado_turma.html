@@ -10,6 +10,13 @@
     {% for disciplina, resultados in agrupado.items() %}
         <h3 class="mt-4">Disciplina: {{ disciplina.nome }}</h3>
 
+        <a href="{{ url_for('notas.export_pdf', turma_id=turma.id, disciplina_id=disciplina.id) }}" class="btn btn-primary mb-2">
+            Exportar PDF - {{ disciplina.nome }}
+        </a>
+        <a href="{{ url_for('notas.export_csv', turma_id=turma.id, disciplina_id=disciplina.id) }}" class="btn btn-warning mb-2">
+            Exportar CSV - {{ disciplina.nome }}
+        </a>
+
         {% if resultados and resultados[0].avaliacoes %}
         <table class="table table-bordered table-hover">
             <thead class="table-light">
@@ -20,6 +27,7 @@
                     {% endfor %}
                     <th>Média</th>
                     <th>Situação</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,13 +53,38 @@
                             <span class="badge bg-secondary">{{ r.situacao }}</span>
                         {% endif %}
                     </td>
+                    <td>
+                        <a href="{{ url_for('notas.resultado_individual', turma_id=turma.id, disciplina_id=disciplina.id, aluno_id=r.aluno.id) }}"
+                           class="btn btn-sm btn-info">
+                           Ver Detalhes
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
+
+            <tfoot>
+                <tr>
+                    <th>Média</th>
+                    {% for media in estatisticas[disciplina.id].medias_avaliacoes %}
+                        <th>{{ "%.2f"|format(media) }}</th>
+                    {% endfor %}
+                    <th>{{ "%.2f"|format(estatisticas[disciplina.id].media_das_medias) }}</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
         </table>
+
+        <p>
+            Percentual de aprovados: 
+            <strong>{{ "%.2f"|format(estatisticas[disciplina.id].percentual_aprovados) }}%</strong>
+        </p>
+
         {% else %}
             <div class="alert alert-warning">Nenhuma avaliação cadastrada para esta disciplina.</div>
         {% endif %}
+
     {% endfor %}
 {% else %}
     <div class="alert alert-info">Nenhuma disciplina com avaliações cadastradas para esta turma.</div>

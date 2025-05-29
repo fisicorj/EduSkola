@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Resultado de {{ aluno.nome if aluno else "Aluno" }}{% endblock %}
+
+{% block content %}
+
+<h2>Resultado Consolidado</h2>
+
+{% if aluno %}
+    <h3>Aluno: {{ aluno.nome }}</h3>
+
+    {% if resultados %}
+        {% for resultado in resultados %}
+            <h4>Turma: {{ resultado.turma.nome }} | Disciplina: {{ resultado.disciplina.nome }}</h4>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        {% for av, nota in resultado.avaliacoes %}
+                            <th>{{ av }}</th>
+                        {% endfor %}
+                        <th>Média</th>
+                        <th>Situação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        {% for av, nota in resultado.avaliacoes %}
+                            <td>{{ "%.2f"|format(nota) if nota is not none else "-" }}</td>
+                        {% endfor %}
+                        <td>{{ "%.2f"|format(resultado.media) if resultado.media is not none else "-" }}</td>
+                        <td>
+                            {% if resultado.situacao == 'Aprovado' %}
+                                <span class="badge bg-success">{{ resultado.situacao }}</span>
+                            {% elif resultado.situacao == 'Reprovado' %}
+                                <span class="badge bg-danger">{{ resultado.situacao }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Sem nota</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-warning">Nenhuma nota encontrada para {{ aluno.nome }}.</div>
+    {% endif %}
+{% else %}
+    <div class="alert alert-info">Digite o nome do aluno para buscar.</div>
+{% endif %}
+
+<a href="{{ url_for('notas.selecionar_resultado') }}" class="btn btn-secondary mt-3">Voltar</a>
+
+{% endblock %}

@@ -14,6 +14,17 @@ class DisciplinaTurmaProfessor(db.Model):
     turma = db.relationship('Turma', backref='associacoes')
     professor = db.relationship('Professor', backref='associacoes')
 
+class CursoDisciplina(db.Model):
+    __tablename__ = 'curso_disciplina'
+    curso_id = db.Column(db.Integer, db.ForeignKey('curso.id'), primary_key=True)
+    disciplina_id = db.Column(db.Integer, db.ForeignKey('disciplina.id'), primary_key=True)
+    semestre_ideal = db.Column(db.Integer, nullable=True)  # exemplo: 1º, 2º, etc.
+    obrigatoria = db.Column(db.Boolean, default=True)
+    carga_horaria = db.Column(db.Integer, nullable=True)
+    curso = db.relationship('Curso', backref='disciplinas_relacionadas')
+    disciplina = db.relationship('Disciplina', backref='cursos_relacionados')
+
+
 # Modelos principais
 
 class User(UserMixin, db.Model):
@@ -57,6 +68,16 @@ class Professor(db.Model):
     nome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+    @property
+    def disciplinas(self):
+        """Retorna as disciplinas associadas ao professor, evitando duplicatas."""
+        return list({assoc.disciplina for assoc in self.associacoes})
+
+    @property
+    def turmas(self):
+        """Retorna as turmas associadas ao professor, evitando duplicatas."""
+        return list({assoc.turma for assoc in self.associacoes})
     
    
 class Disciplina(db.Model):

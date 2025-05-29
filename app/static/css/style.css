@@ -21,7 +21,7 @@ body.dark-mode {
 }
 
 .dark-mode .btn:hover {
-    background-color: #444;
+    background-color: #fff;
 }
 
 .dark-mode .navbar {
@@ -35,7 +35,7 @@ body.dark-mode {
 
 .dark-mode .dropdown-menu a:hover {
     background-color: #fff;
-    color: #333;
+    color: #ffffff;
 }
 
 /* Transições suaves */

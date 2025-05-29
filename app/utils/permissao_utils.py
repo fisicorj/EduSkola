@@ -1,15 +1,26 @@
-from app.models import Disciplina, Avaliacao, Turma
+from app.models import Disciplina, Avaliacao, Turma, DisciplinaTurmaProfessor, Professor
 from flask_login import current_user
-#from flask import flash, redirect, url_for
 from flask import abort
 
-def pode_acessar_disciplina(disciplina_id):
-    disciplina = Disciplina.query.get_or_404(disciplina_id)
-    
-    if current_user.role == 'professor':
-        if not current_user.professor or disciplina.professor_id != current_user.professor.id:
-            abort(403)
-    
+def pode_acessar_disciplina(disciplina_id, turma_id=None):
+    if current_user.role != 'professor':
+        return True  # outros perfis podem acessar
+
+    professor = current_user.professor
+    if not professor:
+        abort(403)
+
+    query = DisciplinaTurmaProfessor.query.filter_by(
+        professor_id=professor.id,
+        disciplina_id=disciplina_id
+    )
+
+    if turma_id:
+        query = query.filter_by(turma_id=turma_id)
+
+    if not query.first():
+        abort(403)
+
     return True
 
 

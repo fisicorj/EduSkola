@@ -16,6 +16,7 @@
             {% endfor %}
             <th>Média</th>
             <th>Situação</th>
+            <th>Ações</th>  {#nova coluna para ações #}
         </tr>
     </thead>
     <tbody>
@@ -27,7 +28,7 @@
                     {% if nota is not none %}
                         {{ "%.2f"|format(nota) }}
                     {% else %}
-                        ---
+                        ---  
                     {% endif %}
                 </td>
             {% endfor %}
@@ -51,6 +52,12 @@
                     {{ resultado.situacao }}
                 </span>
             </td>
+            <td>
+                <a href="{{ url_for('notas.enviar_email_individual', turma_id=turma.id, disciplina_id=disciplina.id, aluno_id=resultado.aluno.id) }}" 
+                   class="btn btn-sm btn-outline-primary">
+                    Enviar E-mail
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
@@ -59,6 +66,17 @@
 <div class="alert alert-info">Nenhum resultado encontrado para esta disciplina.</div>
 {% endif %}
 
-<a href="{{ url_for('notas.selecionar_resultado') }}" class="btn btn-secondary mt-3">Voltar</a>
+<a href="{{ url_for('notas.export_pdf', turma_id=turma.id, disciplina_id=disciplina.id) }}" class="btn btn-secondary mt-3">
+    Exportar PDF
+</a>
+<a href="{{ url_for('notas.export_csv', turma_id=turma.id, disciplina_id=disciplina.id) }}" class="btn btn-warning mt-3">
+    Exportar CSV
+</a>
+<a href="{{ url_for('notas.enviar_email_coletivo', turma_id=turma.id, disciplina_id=disciplina.id) }}" class="btn btn-info mt-3">
+    Enviar Notas por E-mail (Todos)
+</a>
+<a href="{{ url_for('notas.selecionar_resultado') }}" class="btn btn-secondary mt-3">
+    Voltar
+</a>
 
 {% endblock %}

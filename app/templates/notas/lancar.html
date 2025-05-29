@@ -30,7 +30,7 @@
                         min="0" 
                         max="10" 
                         step="0.01" 
-                        value="{{ notas.get((aluno.id, avaliacao.id), '') }}">
+                        value="{{ notas.get((aluno.id, avaliacao.id), '') }}" required>
                 </td>
                 {% endfor %}
             </tr>

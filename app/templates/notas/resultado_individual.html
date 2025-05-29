@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Resultado de {{ aluno.nome }}{% endblock %}
+
+{% block content %}
+
+<h2>Resultado - {{ aluno.nome }}</h2>
+<h3>Turma: {{ turma.nome }} | Disciplina: {{ disciplina.nome }}</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            {% for av in avaliacoes %}
+                <th>{{ av.nome }}</th>
+            {% endfor %}
+            <th>Média</th>
+            <th>Situação</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            {% for nota in notas %}
+                <td>
+                    {% if nota is not none %}
+                        {{ "%.2f"|format(nota) }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            {% endfor %}
+            <td>
+                {% if media is not none %}
+                    {{ "%.2f"|format(media) }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>
+                {% if situacao == 'Aprovado' %}
+                    <span class="badge bg-success">{{ situacao }}</span>
+                {% elif situacao == 'Reprovado' %}
+                    <span class="badge bg-danger">{{ situacao }}</span>
+                {% else %}
+                    <span class="badge bg-secondary">{{ situacao }}</span>
+                {% endif %}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<a href="{{ url_for('notas.resultado_turma', turma_id=turma.id) }}" class="btn btn-secondary">Voltar</a>
+
+{% endblock %}

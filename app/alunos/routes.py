@@ -28,7 +28,8 @@ def listar():
     if instituicao_id:
         alunos_query = alunos_query.join(Turma).filter(Turma.instituicao_id == instituicao_id)
 
-    alunos = alunos_query.all()
+    #alunos = alunos_query.all()
+    alunos = alunos_query.order_by(Aluno.nome.asc()).all()
 
     return render_template('alunos/listar.html', alunos=alunos, turmas=turmas,
                            instituicoes=instituicoes, semestres=semestres,
@@ -59,6 +60,7 @@ def novo():
             turma_id=turma_id,
             semestre_letivo_id=semestre_letivo_id
         )
+        
         db.session.add(aluno)
         db.session.commit()
         flash('Aluno cadastrado com sucesso.', 'success')

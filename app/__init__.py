@@ -1,33 +1,20 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from app.extensions import db, login_manager, migrate
-from flask_migrate import Migrate
+from app.extensions import db, login_manager, migrate, mail
 from flask_migrate import Migrate
 from app.config import DevelopmentConfig  # ou ProductionConfig
 
 def create_app(config_class=DevelopmentConfig):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    mail.init_app(app)
 
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
 
     login_manager.login_view = 'auth.login'
-
-    """with app.app_context():  #somente durante desenvolvimento.
-        try:
-            db.create_all()
-            if not User.query.filter_by(username='admin').first():
-                user = User(username='admin', password=generate_password_hash('admin123'))
-                db.session.add(user)
-                db.session.commit()
-                print("✅ Usuário admin criado.")
-            else:
-                print("✅ Usuário admin já existe.")
-        except Exception as e:
-            print(f"⚠️ Erro ao criar tabelas ou admin: {e}")"""
 
     from app.auth.routes import auth_bp
     from app.painel.routes import painel_bp

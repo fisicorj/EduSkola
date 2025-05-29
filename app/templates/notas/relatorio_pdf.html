@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Notas - {{ turma.nome }} - {{ disciplina.nome }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18px;
+            color: #34495e;
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tfoot th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10px;
+            color: #aaa;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .percentual {
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: right;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório de Notas</h1>
+    <h2>Turma: {{ turma.nome }} | Disciplina: {{ disciplina.nome }}</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Aluno</th>
+                {% for av in avaliacoes %}
+                    <th>{{ av.nome }}</th>
+                {% endfor %}
+                <th>Média</th>
+                <th>Situação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for resultado in resultados %}
+            <tr>
+                <td>{{ resultado.aluno.nome }}</td>
+                {% for nota in resultado.notas %}
+                    <td>
+                        {% if nota is not none %}
+                            {{ "%.2f"|format(nota) }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                <td>
+                    {% if resultado.media is not none %}
+                        {{ "%.2f"|format(resultado.media) }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if resultado.situacao == 'Aprovado' %}
+                    <span style="color: green; font-weight: bold;">✅ Aprovado</span>
+                    {% elif resultado.situacao == 'Reprovado' %}
+                    <span style="color: red; font-weight: bold;">❌ Reprovado</span>
+                    {% else %}
+                    <span style="color: gray;">-</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Média</th>
+                {% for media in medias_avaliacoes %}
+                    <th>{{ "%.2f"|format(media) }}</th>
+                {% endfor %}
+                <th>{{ "%.2f"|format(media_das_medias) }}</th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="percentual">
+        Percentual de aprovados: <strong>{{ "%.2f"|format(percentual_aprovados) }}%</strong>
+    </div>
+
+    <div class="footer">
+        Relatório gerado automaticamente pelo sistema Skola2<br>
+        Turma: {{ turma.semestre_letivo.ano }}/{{ turma.semestre_letivo.semestre }}<br>
+        Emissão: {{ data_hora_emissao }}
+    </div>
+</body>
+</html>
