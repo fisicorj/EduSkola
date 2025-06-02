@@ -10,21 +10,23 @@
         <div class="list-group">
             {% for d in disciplinas %}
                 <div class="list-group-item list-group-item-action">
-                    <h5 class="mb-1">{{ d.nome }}</h5>
+                    <h5 class="mb-2">{{ d.nome }}</h5>
 
-                    <p class="mb-1">
-                        Turmas: 
-                        {% for turma in d.turmas %}
-                            {{ turma.nome }}{% if not loop.last %}, {% endif %}
+                    <div>
+                        {% set turmas_agrupadas = {} %}
+                        {% for assoc in d.associacoes %}
+                            {% set _ = turmas_agrupadas.setdefault(assoc.turma.nome, []).append(assoc.professor.nome) %}
                         {% endfor %}
-                    </p>
 
-                    <small>
-                        Professores: 
-                        {% for prof in d.professores %}
-                            {{ prof.nome }}{% if not loop.last %}, {% endif %}
+                        {% for turma_nome, professores in turmas_agrupadas.items() %}
+                            <div class="mb-2">
+                                <span class="badge bg-primary me-1">{{ turma_nome }}</span>
+                                {% for prof in professores %}
+                                    <span class="badge bg-secondary">{{ prof }}</span>
+                                {% endfor %}
+                            </div>
                         {% endfor %}
-                    </small>
+                    </div>
                 </div>
             {% endfor %}
         </div>

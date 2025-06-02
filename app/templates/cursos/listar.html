@@ -1,28 +1,28 @@
 {% extends 'base.html' %}
-{% block title %}Cursos{% endblock %}
+
 {% block content %}
 <h2>Cursos</h2>
-<a class="btn btn-primary mb-3" href="{{ url_for('cursos.novo') }}">Novo Curso</a>
-<table class="table table-bordered">
-<thead>
-<tr>
-<th>Nome</th>
-<th>Sigla</th>
-<th>Instituição</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody>
-        {% for c in cursos %}
+<table class="table table-striped">
+    <thead>
         <tr>
-<td>{{ c.nome }}</td>
-<td>{{ c.sigla }}</td>
-<td>{{ c.instituicao.nome }}</td>
-<td>
-<a class="btn btn-sm btn-warning" href="{{ url_for('cursos.editar', id=c.id) }}">Editar</a>
-<a class="btn btn-sm btn-danger" href="{{ url_for('cursos.excluir', id=c.id) }}">Excluir</a>
-</td>
-</tr>
+            <th>Nome</th>
+            <th>Sigla</th>
+            <th>Instituição</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for curso in cursos %}
+        <tr>
+            <td>{{ curso.nome }}</td>
+            <td>{{ curso.sigla }}</td>
+            <td>{{ curso.instituicao.sigla }}</td>
+            <td>
+                <a href="{{ url_for('cursos.editar', id=curso.id) }}" class="btn btn-sm btn-warning">Editar</a>
+                <a href="{{ url_for('cursos.excluir', id=curso.id) }}" class="btn btn-sm btn-danger">Excluir</a>
+                <a href="{{ url_for('cursos.gerenciar_disciplinas', id=curso.id) }}" class="btn btn-sm btn-secondary">Disciplinas</a>
+            </td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>

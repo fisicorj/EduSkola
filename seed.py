@@ -1,5 +1,5 @@
 from app import create_app, db
-from app.models import Instituicao, Curso, Turma, Aluno, Professor, Disciplina, Avaliacao, Nota, SemestreLetivo, DisciplinaTurmaProfessor
+from app.models import Instituicao, Curso, Turma, Aluno, Professor, Disciplina, Avaliacao, Nota, SemestreLetivo, DisciplinaTurmaProfessor, CursoDisciplina
 from datetime import date
 import random
 
@@ -11,6 +11,7 @@ with app.app_context():
     db.session.query(Avaliacao).delete()
     db.session.query(Aluno).delete()
     db.session.query(DisciplinaTurmaProfessor).delete()
+    db.session.query(CursoDisciplina).delete()
     db.session.query(Disciplina).delete()
     db.session.query(Turma).delete()
     db.session.query(Curso).delete()
@@ -69,21 +70,28 @@ with app.app_context():
     for nome_disciplina in ['Algoritmos', 'Matemática', 'Gestão']:
         disciplina = Disciplina(
             nome=nome_disciplina,
-            sigla=nome_disciplina[:3].upper(),
-            semestre_letivo_id=random.choice(semestres).id
+            sigla=nome_disciplina[:3].upper()
         )
         db.session.add(disciplina)
         disciplinas.append(disciplina)
     db.session.commit()
 
-    # ✅ Criar associações Disciplina - Turma - Professor
+    # ✅ Vincular Disciplinas aos Cursos
+    for disciplina in disciplinas:
+        assoc1 = CursoDisciplina(curso_id=curso1.id, disciplina_id=disciplina.id)
+        assoc2 = CursoDisciplina(curso_id=curso2.id, disciplina_id=disciplina.id)
+        db.session.add_all([assoc1, assoc2])
+    db.session.commit()
+
+    # ✅ Criar associações Disciplina - Turma - Professor - SemestreLetivo
     for disciplina in disciplinas:
         for turma in random.sample(turmas, k=random.randint(1, len(turmas))):
             prof = random.choice(professores)
             assoc = DisciplinaTurmaProfessor(
                 disciplina_id=disciplina.id,
                 turma_id=turma.id,
-                professor_id=prof.id
+                professor_id=prof.id,
+                semestre_letivo_id=turma.semestre_letivo_id
             )
             db.session.add(assoc)
     db.session.commit()
@@ -110,7 +118,7 @@ with app.app_context():
                 peso=0.3,
                 turma_id=assoc.turma_id,
                 disciplina_id=assoc.disciplina_id,
-                semestre_letivo_id=assoc.turma.semestre_letivo_id
+                semestre_letivo_id=assoc.semestre_letivo_id
             )
             db.session.add(avaliacao)
             db.session.commit()

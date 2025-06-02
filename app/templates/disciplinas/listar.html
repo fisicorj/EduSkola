@@ -1,39 +1,89 @@
 {% extends 'base.html' %}
-{% block title %}Disciplinas{% endblock %}
 {% block content %}
-
 <h2>Disciplinas</h2>
 
-<a class="btn btn-primary mb-3" href="{{ url_for('disciplinas.nova') }}">Nova Disciplina</a>
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Sigla</th>
-            <th>Semestre</th>
-            <th>Associações</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for disciplina in disciplinas %}
-        <tr>
-            <td>{{ disciplina.nome }}</td>
-            <td>{{ disciplina.sigla }}</td>
-            <td>{{ disciplina.semestre_letivo.ano }}/{{ disciplina.semestre_letivo.semestre }}</td>
-            <td>
-                {% for assoc in disciplina.associacoes %}
-                    <div>{{ assoc.professor.nome }} - {{ assoc.turma.nome }}</div>
-                {% endfor %}
-            </td>
-            <td>
-                <a class="btn btn-warning btn-sm" href="{{ url_for('disciplinas.editar', id=disciplina.id) }}">Editar</a>
-                <a class="btn btn-danger btn-sm" href="{{ url_for('disciplinas.excluir', id=disciplina.id) }}">Excluir</a>
-            </td>
-        </tr>
+<form method="get" action="{{ url_for('disciplinas.listar') }}">
+  <div class="row g-3 align-items-center">
+    <div class="col-auto">
+      <select name="curso_id" class="form-select">
+        <option value="">Todos os Cursos</option>
+        {% for curso in cursos %}
+          <option value="{{ curso.id }}" {% if curso_id == curso.id %}selected{% endif %}>{{ curso.nome }}</option>
         {% endfor %}
-    </tbody>
+      </select>
+    </div>
+
+    <div class="col-auto">
+      <select name="turma_id" class="form-select">
+        <option value="">Todas as Turmas</option>
+        {% for turma in turmas %}
+          <option value="{{ turma.id }}" {% if turma_id == turma.id %}selected{% endif %}>{{ turma.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-auto">
+      <select name="professor_id" class="form-select">
+        <option value="">Todos os Professores</option>
+        {% for professor in professores %}
+          <option value="{{ professor.id }}" {% if professor_id == professor.id %}selected{% endif %}>{{ professor.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+      <a href="{{ url_for('disciplinas.listar') }}" class="btn btn-secondary">Limpar Filtros</a>
+    </div>
+  </div>
+</form>
+
+<hr>
+
+<table class="table table-bordered table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Sigla</th>
+      <th>Professores</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for disciplina in disciplinas %}
+    <tr>
+      <td>{{ disciplina.nome }}</td>
+      <td>{{ disciplina.sigla }}</td>
+      <td>
+        {% set grupos = {} %}
+        {% for assoc in disciplina.associacoes %}
+          {% set turma_nome = assoc.turma.nome %}
+          {% if turma_nome not in grupos %}
+            {% set _ = grupos.update({turma_nome: []}) %}
+          {% endif %}
+          {% set _ = grupos[turma_nome].append(assoc.professor.nome) %}
+        {% endfor %}
+
+        {% if grupos %}
+          <div class="d-flex flex-wrap gap-1">
+            {% for turma, professores in grupos.items() %}
+              <span class="badge bg-secondary">
+                <strong>{{ turma }}:</strong> {{ professores | unique | join(', ') }}
+              </span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <span class="text-muted">Nenhum</span>
+        {% endif %}
+      </td>
+      <td>
+        <a href="{{ url_for('disciplinas.editar', id=disciplina.id) }}" class="btn btn-sm btn-warning">Editar</a>
+        <a href="{{ url_for('disciplinas.excluir', id=disciplina.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 
+<a href="{{ url_for('disciplinas.nova') }}" class="btn btn-success">Nova Disciplina</a>
 {% endblock %}

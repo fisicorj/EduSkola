@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, make_response, Response
 from flask_login import login_required, current_user
 from app import db
-from app.models import Aluno, Turma, Disciplina, Avaliacao, Nota, SemestreLetivo, Professor
+from app.models import Aluno, Turma, Disciplina, Avaliacao, Nota, SemestreLetivo, Professor, DisciplinaTurmaProfessor
 from app.utils.avaliacao_utils import calcular_media
 from app.utils.permissao_utils import pode_acessar_disciplina
 from app.services.email_service import enviar_email
@@ -28,7 +28,10 @@ def selecionar_lancamento():
         professor = Professor.query.filter_by(user_id=current_user.id).first()
         if not professor:
             abort(403)
-        disciplinas = professor.disciplinas
+        disciplinas_ids = db.session.query(Disciplina.id).join(Disciplina.associacoes)\
+            .filter(DisciplinaTurmaProfessor.professor_id == professor.id).distinct()
+        disciplinas = Disciplina.query.filter(Disciplina.id.in_(disciplinas_ids)).all()
+
     else:
         disciplinas = Disciplina.query.all()
 
@@ -110,7 +113,10 @@ def selecionar_resultado():
         professor = Professor.query.filter_by(user_id=current_user.id).first()
         if not professor:
             abort(403)
-        disciplinas = professor.disciplinas
+        disciplinas_ids = db.session.query(Disciplina.id).join(Disciplina.associacoes)\
+            .filter(DisciplinaTurmaProfessor.professor_id == professor.id).distinct()
+        disciplinas = Disciplina.query.filter(Disciplina.id.in_(disciplinas_ids)).all()
+
     else:
         disciplinas = Disciplina.query.all()
 

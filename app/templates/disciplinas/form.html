@@ -1,61 +1,61 @@
 {% extends 'base.html' %}
-{% block title %}{{ titulo }}{% endblock %}
 {% block content %}
-
 <h2>{{ titulo }}</h2>
 
 <form method="post">
     <div class="mb-3">
-        <label class="form-label" for="nome">Nome</label>
-        <input type="text" class="form-control" name="nome" required value="{{ disciplina.nome if disciplina else '' }}">
+        <label for="nome" class="form-label">Nome da Disciplina</label>
+        <input type="text" class="form-control" name="nome" id="nome" required
+               value="{{ disciplina.nome if disciplina else '' }}">
     </div>
 
     <div class="mb-3">
-        <label class="form-label" for="sigla">Sigla</label>
-        <input type="text" class="form-control" name="sigla" required value="{{ disciplina.sigla if disciplina else '' }}">
+        <label for="sigla" class="form-label">Sigla</label>
+        <input type="text" class="form-control" name="sigla" id="sigla" required
+               value="{{ disciplina.sigla if disciplina else '' }}">
     </div>
 
     <div class="mb-3">
-        <label class="form-label" for="semestre_letivo_id">Semestre Letivo</label>
-        <select class="form-select" name="semestre_letivo_id" required>
-            {% for semestre in semestres %}
-            <option value="{{ semestre.id }}" {% if disciplina and disciplina.semestre_letivo_id == semestre.id %}selected{% endif %}>
-                {{ semestre.ano }} - {{ semestre.semestre }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <hr>
-
-    <h4>Associações por Turma:</h4>
-
-    {% for turma in turmas %}
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong>{{ turma.nome }}</strong>
-        </div>
-        <div class="card-body">
-            <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" name="turma_ids" value="{{ turma.id }}">
-                <label class="form-check-label">Associar esta turma</label>
+        <label class="form-label">Cursos</label><br>
+        {% set cursos_ids = disciplina.cursos_ids if disciplina else [] %}
+        {% for curso in cursos %}
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="cursos[]" value="{{ curso.id }}"
+                       id="curso_{{ curso.id }}"
+                       {% if curso.id in cursos_ids %}checked{% endif %}>
+                <label class="form-check-label" for="curso_{{ curso.id }}">{{ curso.nome }}</label>
             </div>
+        {% endfor %}
+    </div>
 
-            <label class="form-label">Professores responsáveis:</label>
-            {% for prof in professores %}
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="professores_{{ turma.id }}[]" value="{{ prof.id }}">
-                <label class="form-check-label">{{ prof.nome }}</label>
+    <div class="mb-3">
+        <label class="form-label">Turmas e Professores</label>
+        {% set turmas_ids = disciplina.turmas_ids if disciplina else [] %}
+        {% set profs_por_turma = disciplina.professores_ids_por_turma if disciplina else {} %}
+
+        {% for turma in turmas %}
+            <div class="mb-2">
+                <strong>{{ turma.nome }}</strong><br>
+                <input type="checkbox" name="turma_ids[]" value="{{ turma.id }}"
+                       {% if turma.id in turmas_ids %}checked{% endif %}>
+                Selecionar Turma
+
+                <div class="ms-4">
+                    {% for professor in professores %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="professores_{{ turma.id }}[]"
+                                   value="{{ professor.id }}"
+                                   {% if professor.id in profs_por_turma.get(turma.id, []) %}checked{% endif %}>
+                            <label class="form-check-label">{{ professor.nome }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-            {% endfor %}
-        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 
-    <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-success">Salvar</button>
-        <a href="{{ url_for('disciplinas.listar') }}" class="btn btn-secondary">Cancelar</a>
-    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ url_for('disciplinas.listar') }}" class="btn btn-secondary">Cancelar</a>
 </form>
-
 {% endblock %}

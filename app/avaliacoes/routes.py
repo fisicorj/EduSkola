@@ -55,8 +55,14 @@ def listar():
 @login_required
 def nova():
     turmas = Turma.query.all()
-    disciplinas = Disciplina.query.all()
     semestres = SemestreLetivo.query.all()
+
+    if current_user.role == 'professor':
+        professor = Professor.query.filter_by(user_id=current_user.id).first()
+        disciplinas_ids = db.session.query(DisciplinaTurmaProfessor.disciplina_id).filter_by(professor_id=professor.id).distinct()
+        disciplinas = Disciplina.query.filter(Disciplina.id.in_(disciplinas_ids)).all()
+    else:
+        disciplinas = Disciplina.query.all()
 
     if request.method == 'POST':
         nome = request.form['nome']
@@ -86,8 +92,14 @@ def nova():
 def editar(id):
     avaliacao = Avaliacao.query.get_or_404(id)
     turmas = Turma.query.all()
-    disciplinas = Disciplina.query.all()
     semestres = SemestreLetivo.query.all()
+
+    if current_user.role == 'professor':
+        professor = Professor.query.filter_by(user_id=current_user.id).first()
+        disciplinas_ids = db.session.query(DisciplinaTurmaProfessor.disciplina_id).filter_by(professor_id=professor.id).distinct()
+        disciplinas = Disciplina.query.filter(Disciplina.id.in_(disciplinas_ids)).all()
+    else:
+        disciplinas = Disciplina.query.all()
 
     if request.method == 'POST':
         avaliacao.nome = request.form['nome']

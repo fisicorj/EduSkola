@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from app import db
-from app.models import Curso, Instituicao
+from app.models import Curso, Instituicao, Disciplina, CursoDisciplina
 
 cursos_bp = Blueprint('cursos', __name__, url_prefix='/cursos')
 
@@ -40,6 +40,23 @@ def editar(id):
         return redirect(url_for('cursos.listar'))
     instituicoes = Instituicao.query.all()
     return render_template('cursos/form.html', curso=curso, titulo='Editar Curso', instituicoes=instituicoes)
+
+@cursos_bp.route('/<int:id>/disciplinas', methods=['GET', 'POST'])
+@login_required
+def gerenciar_disciplinas(id):
+    curso = Curso.query.get_or_404(id)
+    disciplinas_todas = Disciplina.query.all()
+    if request.method == 'POST':
+        CursoDisciplina.query.filter_by(curso_id=curso.id).delete()
+        for disciplina_id in request.form.getlist('disciplinas'):
+            disciplina = Disciplina.query.get(int(disciplina_id))
+            if disciplina:
+                associacao = CursoDisciplina(curso=curso, disciplina=disciplina)
+                db.session.add(associacao)
+        db.session.commit()
+        flash('Disciplinas atualizadas para o curso.', 'success')
+        return redirect(url_for('cursos.listar'))
+    return render_template('cursos/disciplinas.html', curso=curso, disciplinas_todas=disciplinas_todas)
 
 @cursos_bp.route('/excluir/<int:id>')
 @login_required
